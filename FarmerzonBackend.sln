@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmerzonBackend", "FarmerzonBackend\FarmerzonBackend.csproj", "{4466970A-9310-4C4A-B7D0-F57EF81F1AB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmerzonBackendManager", "FarmerzonBackendManager\FarmerzonBackendManager.csproj", "{C9DDF378-C01A-41A1-A96B-745C275180BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FarmerzonBackendDataTransferModel", "FarmerzonBackendDataTransferModel\FarmerzonBackendDataTransferModel.csproj", "{BF32F72C-BF55-4C8A-B7B1-ED28E332DCC3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4466970A-9310-4C4A-B7D0-F57EF81F1AB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4466970A-9310-4C4A-B7D0-F57EF81F1AB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4466970A-9310-4C4A-B7D0-F57EF81F1AB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4466970A-9310-4C4A-B7D0-F57EF81F1AB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9DDF378-C01A-41A1-A96B-745C275180BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9DDF378-C01A-41A1-A96B-745C275180BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9DDF378-C01A-41A1-A96B-745C275180BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9DDF378-C01A-41A1-A96B-745C275180BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF32F72C-BF55-4C8A-B7B1-ED28E332DCC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF32F72C-BF55-4C8A-B7B1-ED28E332DCC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF32F72C-BF55-4C8A-B7B1-ED28E332DCC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF32F72C-BF55-4C8A-B7B1-ED28E332DCC3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
