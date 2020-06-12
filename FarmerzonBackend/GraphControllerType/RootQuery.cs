@@ -63,8 +63,6 @@ namespace FarmerzonBackend.GraphControllerType
 
         private async Task<IList<DTO.Article>> LoadArticles(ResolveFieldContext<object> context)
         {
-            var token = context.UserContext is Dictionary<string, string> userContext 
-                        && userContext.ContainsKey("token") ? userContext["token"] : null;
             var articleId = context.GetArgument<long?>("articleId");
             var name = context.GetArgument<string>("name");
             var description = context.GetArgument<string>("description");
@@ -79,8 +77,6 @@ namespace FarmerzonBackend.GraphControllerType
         
         private async Task<IList<DTO.Person>> LoadPeople(ResolveFieldContext<object> context)
         {
-            var token = context.UserContext is Dictionary<string, string> userContext 
-                        && userContext.ContainsKey("token") ? userContext["token"] : null;
             var personId = context.GetArgument<long?>("personId");
             var userName = context.GetArgument<string>("userName");
             var normalizedUserName = context.GetArgument<string>("normalizedUserName");
@@ -89,8 +85,6 @@ namespace FarmerzonBackend.GraphControllerType
         
         private async Task<IList<DTO.Unit>> LoadUnits(ResolveFieldContext<object> context)
         {
-            var token = context.UserContext is Dictionary<string, string> userContext 
-                        && userContext.ContainsKey("token") ? userContext["token"] : null;
             var unitId = context.GetArgument<long?>("unitId");
             var name = context.GetArgument<string>("name");
             return await UnitManager.GetEntitiesAsync(unitId, name);

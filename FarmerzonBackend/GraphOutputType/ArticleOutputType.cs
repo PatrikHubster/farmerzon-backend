@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using FarmerzonBackendManager.Interface;
 using GraphQL.DataLoader;
@@ -53,16 +54,14 @@ namespace FarmerzonBackend.GraphOutputType
 
         private Task<DTO.Unit> LoadUnit(ResolveFieldContext<DTO.Article> context)
         {
-            var loader =
-                Accessor.Context.GetOrAddBatchLoader<long, DTO.Unit>("GetUnitByArticleId", 
+            var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.Unit>("GetUnitByArticleId", 
                     UnitManager.GetUnitsByArticleIdAsync);
             return loader.LoadAsync(context.Source.ArticleId);
         }
 
         private Task<DTO.Person> LoadPerson(ResolveFieldContext<DTO.Article> context)
         {
-            var loader =
-                Accessor.Context.GetOrAddBatchLoader<long, DTO.Person>("GetPersonByArticleId", 
+            var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.Person>("GetPersonByArticleId", 
                     PersonManager.GetPeopleByArticleIdAsync);
             return loader.LoadAsync(context.Source.ArticleId);
         }

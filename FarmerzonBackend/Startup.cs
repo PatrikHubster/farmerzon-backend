@@ -87,6 +87,7 @@ namespace FarmerzonBackend
             services.AddScoped<IArticleManager, ArticleManager>();
             services.AddScoped<IPersonManager, PersonManager>();
             services.AddScoped<IUnitManager, UnitManager>();
+            services.AddScoped<ITokenManager, TokenManager>();
             
             // graphQL DI container
             services.AddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();

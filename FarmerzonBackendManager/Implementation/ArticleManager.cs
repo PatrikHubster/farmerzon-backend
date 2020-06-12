@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using FarmerzonArticlesDataTransferModel;
@@ -15,7 +16,8 @@ namespace FarmerzonBackendManager.Implementation
 {
     public class ArticleManager : AbstractManager, IArticleManager
     {
-        public ArticleManager(IHttpClientFactory clientFactory) : base(clientFactory)
+        public ArticleManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
+            base(clientFactory, tokenManager)
         {
             // nothing to do here
         }
@@ -64,10 +66,14 @@ namespace FarmerzonBackendManager.Implementation
                 query.Add(nameof(updatedAt), updatedAt.Value.ToString(CultureInfo.CurrentCulture));
             }
 
-            var client = ClientFactory.CreateClient(FarmerzonArticles);
-            var builder = new UriBuilder($"{client.BaseAddress}article");
-            builder.Query = query.ToString() ?? string.Empty;
-            var httpResponse = await client.GetAsync(builder.ToString());
+            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
+            var builder = new UriBuilder($"{httpClient.BaseAddress}article")
+            {
+                Query = query.ToString() ?? string.Empty
+            };
+            var httpResponse = await httpClient.GetAsync(builder.ToString());
 
             if (httpResponse.StatusCode != HttpStatusCode.OK)
             {
@@ -90,12 +96,14 @@ namespace FarmerzonBackendManager.Implementation
                 }
             }
 
-            var client = ClientFactory.CreateClient(FarmerzonArticles);
-            var builder = new UriBuilder($"{client.BaseAddress}article/get-by-person-id")
+            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
+            var builder = new UriBuilder($"{httpClient.BaseAddress}article/get-by-person-id")
             {
                 Query = query.ToString() ?? string.Empty
             };
-            var httpResponse = await client.GetAsync(builder.ToString());
+            var httpResponse = await httpClient.GetAsync(builder.ToString());
 
             if (httpResponse.StatusCode != HttpStatusCode.OK)
             {
@@ -120,12 +128,14 @@ namespace FarmerzonBackendManager.Implementation
                 }
             }
 
-            var client = ClientFactory.CreateClient(FarmerzonArticles);
-            var builder = new UriBuilder($"{client.BaseAddress}article/get-by-unit-id")
+            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
+            var builder = new UriBuilder($"{httpClient.BaseAddress}article/get-by-unit-id")
             {
                 Query = query.ToString() ?? string.Empty
             };
-            var httpResponse = await client.GetAsync(builder.ToString());
+            var httpResponse = await httpClient.GetAsync(builder.ToString());
             
             if (httpResponse.StatusCode != HttpStatusCode.OK)
             {

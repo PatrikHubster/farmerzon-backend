@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
 using FarmerzonArticlesDataTransferModel;
@@ -14,7 +15,8 @@ namespace FarmerzonBackendManager.Implementation
 {
     public class UnitManager : AbstractManager, IUnitManager
     {
-        public UnitManager(IHttpClientFactory clientFactory) : base(clientFactory)
+        public UnitManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
+            base(clientFactory, tokenManager)
         {
             // nothing to do here
         }
@@ -32,9 +34,14 @@ namespace FarmerzonBackendManager.Implementation
                 query.Add(nameof(name), name);
             }
             
-            var client = ClientFactory.CreateClient(FarmerzonArticles);
-            var builder = new UriBuilder($"{client.BaseAddress}unit") {Query = query.ToString() ?? string.Empty};
-            var httpResponse = await client.GetAsync(builder.ToString());
+            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
+            var builder = new UriBuilder($"{httpClient.BaseAddress}unit")
+            {
+                Query = query.ToString() ?? string.Empty
+            };
+            var httpResponse = await httpClient.GetAsync(builder.ToString());
             
             if (httpResponse.StatusCode != HttpStatusCode.OK)
             {
@@ -57,12 +64,14 @@ namespace FarmerzonBackendManager.Implementation
                 }
             }
 
-            var client = ClientFactory.CreateClient(FarmerzonArticles);
-            var builder = new UriBuilder($"{client.BaseAddress}unit/get-by-article-id")
+            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
+            var builder = new UriBuilder($"{httpClient.BaseAddress}unit/get-by-article-id")
             {
                 Query = query.ToString() ?? string.Empty
             };
-            var httpResponse = await client.GetAsync(builder.ToString());
+            var httpResponse = await httpClient.GetAsync(builder.ToString());
             
             if (httpResponse.StatusCode != HttpStatusCode.OK)
             {
