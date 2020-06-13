@@ -1,4 +1,3 @@
-using FarmerzonBackend.GraphInputType;
 using GraphQL.Types;
 
 namespace FarmerzonBackend.GraphControllerType
@@ -8,11 +7,6 @@ namespace FarmerzonBackend.GraphControllerType
         public RootMutation()
         {
             Name = "RootMutation";
-            Field<UnitInputType>(
-                "createUnit",
-                arguments: new QueryArguments(
-                    new QueryArgument<NonNullGraphType<UnitInputType>> {Name = "unit"}
-                ));
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace FarmerzonArticlesDataTransferModel
+namespace FarmerzonBackendDataTransferModel
 {
     public class BaseResponse
     {

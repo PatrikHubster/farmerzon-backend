@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using FarmerzonBackend.GraphControllerType;
-using FarmerzonBackend.GraphInputType;
 using FarmerzonBackend.GraphOutputType;
 using FarmerzonBackendManager.Implementation;
 using FarmerzonBackendManager.Interface;
@@ -46,12 +45,18 @@ namespace FarmerzonBackend
             
             // Adding the micrservices like described on:
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-3.1
+            services.AddHttpClient("FarmerzonAddress", c =>
+            {
+                c.BaseAddress = new Uri($"http://{Configuration["BaseUrls:FarmerzonAddress:Host"]}:" +
+                                        $"{Configuration["BaseUrls:FarmerzonAddress:Port"]}");
+            });
+            
             services.AddHttpClient("FarmerzonArticles", c =>
             {
                 c.BaseAddress = new Uri($"http://{Configuration["BaseUrls:FarmerzonArticles:Host"]}:" +
                     $"{Configuration["BaseUrls:FarmerzonArticles:Port"]}");
             });
-            
+
             // serialization for GraphQL error responses was not able. The following solution was found on stackoverflow
             // under the following url: https://stackoverflow.com/questions/59199593/net-core-3-0-possible-object-cycle
             // -was-detected-which-is-not-supported
@@ -84,8 +89,12 @@ namespace FarmerzonBackend
             });
 
             // manager DI container
+            services.AddScoped<IAddressManager, AddressManager>();
             services.AddScoped<IArticleManager, ArticleManager>();
+            services.AddScoped<ICityManager, CityManager>();
+            services.AddScoped<ICountryManager, CountryManager>();
             services.AddScoped<IPersonManager, PersonManager>();
+            services.AddScoped<IStateManager, StateManager>();
             services.AddScoped<IUnitManager, UnitManager>();
             services.AddScoped<ITokenManager, TokenManager>();
             
@@ -101,11 +110,14 @@ namespace FarmerzonBackend
             services.AddScoped<RootQuery>();
             services.AddScoped<RootMutation>();
 
+            services.AddScoped<AddressOutputType>();
             services.AddScoped<ArticleOutputType>();
+            services.AddScoped<CityOutputType>();
+            services.AddScoped<CountryOutputType>();
             services.AddScoped<PersonOutputType>();
+            services.AddScoped<StateOutputType>();
             services.AddScoped<UnitOutputType>();
             
-            services.AddScoped<UnitInputType>();
             services.AddGraphQL(o => o.ExposeExceptions = true).AddGraphTypes(ServiceLifetime.Scoped);
         }
 

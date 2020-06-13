@@ -23,13 +23,21 @@ namespace FarmerzonBackend.GraphOutputType
         {
             Name = "Person";
             Field<IdGraphType, long>().Name("personId");
-            
+
+            Field<AddressOutputType, DTO.Address>()
+                .Name("address")
+                .ResolveAsync(LoadAddress);
             Field<ListGraphType<ArticleOutputType>, IEnumerable<DTO.Article>>()
                 .Name("articles")
                 .ResolveAsync(LoadArticles);
             
             Field<StringGraphType, string>().Name("normalizedUserName");
             Field<StringGraphType, string>().Name("userName");
+        }
+
+        private Task<DTO.Address> LoadAddress(ResolveFieldContext<DTO.Person> arg)
+        {
+            throw new System.NotImplementedException();
         }
 
         public PersonOutputType(IDataLoaderContextAccessor accessor, IArticleManager articleManager)

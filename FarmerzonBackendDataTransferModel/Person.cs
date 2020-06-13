@@ -1,4 +1,4 @@
-﻿﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace FarmerzonBackendDataTransferModel
 {
@@ -6,8 +6,9 @@ namespace FarmerzonBackendDataTransferModel
     {
         public long PersonId { get; set; }
         
+        public Address Address { get; set; }
         public IList<Article> Articles { get; set; }
-        
+
         public string UserName { get; set; }
         public string NormalizedUserName { get; set; }
     }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace FarmerzonArticlesDataTransferModel
+namespace FarmerzonBackendDataTransferModel
 {
     public class ListResponse<T> : BaseResponse
     {

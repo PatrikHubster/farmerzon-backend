@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
-using FarmerzonArticlesDataTransferModel;
 using FarmerzonBackendDataTransferModel;
 using FarmerzonBackendManager.Interface;
 using Newtonsoft.Json;
@@ -31,12 +30,12 @@ namespace FarmerzonBackendManager.Implementation
 
             if (!string.IsNullOrEmpty(normalizedUserName))
             {
-                query.Add("userName", userName);
+                query.Add(nameof(userName), userName);
             }
 
             if (!string.IsNullOrEmpty(normalizedUserName))
             {
-                query.Add("normalizedUserName", normalizedUserName);
+                query.Add(nameof(normalizedUserName), normalizedUserName);
             }
 
             var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
