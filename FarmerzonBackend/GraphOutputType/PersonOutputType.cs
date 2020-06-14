@@ -48,7 +48,7 @@ namespace FarmerzonBackend.GraphOutputType
         
         private Task<IEnumerable<DTO.Article>> LoadArticles(ResolveFieldContext<DTO.Person> context)
         {
-            var loader =
+            var loader = 
                 Accessor.Context.GetOrAddCollectionBatchLoader<long, DTO.Article>("GetArticlesByPersonId",
                     ArticleManager.GetArticlesByPersonIdAsync);
             return loader.LoadAsync(context.Source.PersonId);

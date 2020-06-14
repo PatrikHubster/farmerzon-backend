@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
-using FarmerzonBackendDataTransferModel;
 using FarmerzonBackendManager.Interface;
 using Newtonsoft.Json;
 
+using DTO = FarmerzonBackendDataTransferModel;
+
 namespace FarmerzonBackendManager.Implementation
 {
-    public class AddressManager : AbstractManager, IAddressManager
+    public class AddressManager : AbstractManager<DTO.Address>, IAddressManager
     {
         public AddressManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
             base(clientFactory, tokenManager)
@@ -19,7 +21,7 @@ namespace FarmerzonBackendManager.Implementation
             // nothing to do here
         }
 
-        public async Task<IList<Address>> GetEntitiesAsync(long? addressId, string doorNumber, string street)
+        public async Task<IList<DTO.Address>> GetEntitiesAsync(long? addressId, string doorNumber, string street)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (addressId != null)
@@ -52,8 +54,26 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var addresses = JsonConvert.DeserializeObject<ListResponse<Address>>(httpResponseContent);
+            var addresses = JsonConvert.DeserializeObject<DTO.ListResponse<DTO.Address>>(httpResponseContent);
             return addresses.Content;
+        }
+
+        public async Task<ILookup<long, DTO.Address>> GetAddressesByCityIdAsync(IEnumerable<long> cityIds)
+        {
+            return await GetEntitiesByReferenceIdAsLookupAsync(cityIds, nameof(cityIds), FarmerzonAddress,
+                "address/get-by-city-id");
+        }
+
+        public async Task<ILookup<long, DTO.Address>> GetAddressesByCountryIdAsync(IEnumerable<long> countryIds)
+        {
+            return await GetEntitiesByReferenceIdAsLookupAsync(countryIds, nameof(countryIds), FarmerzonAddress,
+                "address/get-by-country-id");
+        }
+
+        public async Task<ILookup<long, DTO.Address>> GetAddressesByStateIdAsync(IEnumerable<long> stateIds)
+        {
+            return await GetEntitiesByReferenceIdAsLookupAsync(stateIds, nameof(stateIds), FarmerzonAddress,
+                "address/get-by-state-id");
         }
     }
 }

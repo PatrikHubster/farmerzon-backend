@@ -5,13 +5,14 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web;
-using FarmerzonBackendDataTransferModel;
 using FarmerzonBackendManager.Interface;
 using Newtonsoft.Json;
 
+using DTO = FarmerzonBackendDataTransferModel;
+
 namespace FarmerzonBackendManager.Implementation
 {
-    public class CityManager : AbstractManager, ICityManager
+    public class CityManager : AbstractManager<DTO.City>, ICityManager
     {
         public CityManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) 
             : base(clientFactory, tokenManager)
@@ -19,7 +20,7 @@ namespace FarmerzonBackendManager.Implementation
             // nothing to do here
         }
 
-        public async Task<IList<City>> GetEntitiesAsync(long? cityId, string zipCode, string name)
+        public async Task<IList<DTO.City>> GetEntitiesAsync(long? cityId, string zipCode, string name)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (cityId != null)
@@ -52,8 +53,14 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var cities = JsonConvert.DeserializeObject<ListResponse<City>>(httpResponseContent);
+            var cities = JsonConvert.DeserializeObject<DTO.ListResponse<DTO.City>>(httpResponseContent);
             return cities.Content;
+        }
+
+        public async Task<IDictionary<long, DTO.City>> GetCitiesByAddressIdAsync(IEnumerable<long> addressIds)
+        {
+            return await GetEntitiesByReferenceIdAsDictAsync(addressIds, nameof(addressIds), FarmerzonAddress,
+                "city/get-by-address-id");
         }
     }
 }

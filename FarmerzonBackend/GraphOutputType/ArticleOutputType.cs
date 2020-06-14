@@ -54,14 +54,14 @@ namespace FarmerzonBackend.GraphOutputType
         private Task<DTO.Unit> LoadUnit(ResolveFieldContext<DTO.Article> context)
         {
             var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.Unit>("GetUnitByArticleId", 
-                    UnitManager.GetUnitsByArticleIdAsync);
+                UnitManager.GetUnitsByArticleIdAsync);
             return loader.LoadAsync(context.Source.ArticleId);
         }
 
         private Task<DTO.Person> LoadPerson(ResolveFieldContext<DTO.Article> context)
         {
             var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.Person>("GetPersonByArticleId", 
-                    PersonManager.GetPeopleByArticleIdAsync);
+                PersonManager.GetPeopleByArticleIdAsync);
             return loader.LoadAsync(context.Source.ArticleId);
         }
     }

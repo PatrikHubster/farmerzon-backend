@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace FarmerzonBackendManager.Implementation
 {
-    public class ArticleManager : AbstractManager, IArticleManager
+    public class ArticleManager : AbstractManager<Article>, IArticleManager
     {
         public ArticleManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
             base(clientFactory, tokenManager)
@@ -86,66 +86,14 @@ namespace FarmerzonBackendManager.Implementation
 
         public async Task<ILookup<long, Article>> GetArticlesByPersonIdAsync(IEnumerable<long> personIds)
         {
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            if (personIds != null)
-            {
-                foreach (var personId in personIds)
-                {
-                    query.Add(nameof(personIds), personId.ToString());
-                }
-            }
-
-            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
-            httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
-            var builder = new UriBuilder($"{httpClient.BaseAddress}article/get-by-person-id")
-            {
-                Query = query.ToString() ?? string.Empty
-            };
-            var httpResponse = await httpClient.GetAsync(builder.ToString());
-
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return null;
-            }
-            
-            var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var articles = JsonConvert.DeserializeObject<DictionaryResponse<IList<Article>>>(httpResponseContent);
-            return articles.Content
-                .SelectMany(x => x.Value, Tuple.Create)
-                .ToLookup(p => long.Parse(p.Item1.Key), p => p.Item2);
+            return await GetEntitiesByReferenceIdAsLookupAsync(personIds, nameof(personIds), FarmerzonArticles,
+                "article/get-by-person-id");
         }
 
         public async Task<ILookup<long, Article>> GetArticlesByUnitIdAsync(IEnumerable<long> unitIds)
         {
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            if (unitIds != null)
-            {
-                foreach (var unitId in unitIds)
-                {
-                    query.Add(nameof(unitIds), unitId.ToString());
-                }
-            }
-
-            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
-            httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
-            var builder = new UriBuilder($"{httpClient.BaseAddress}article/get-by-unit-id")
-            {
-                Query = query.ToString() ?? string.Empty
-            };
-            var httpResponse = await httpClient.GetAsync(builder.ToString());
-            
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return null;
-            }
-
-            var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var articles = JsonConvert.DeserializeObject<DictionaryResponse<IList<Article>>>(httpResponseContent);
-            return articles.Content
-                .SelectMany(x => x.Value, Tuple.Create)
-                .ToLookup(p => long.Parse(p.Item1.Key), p => p.Item2);
+            return await GetEntitiesByReferenceIdAsLookupAsync(unitIds, nameof(unitIds), FarmerzonArticles,
+                "article/get-by-unit-id");
         }
     }
 }
