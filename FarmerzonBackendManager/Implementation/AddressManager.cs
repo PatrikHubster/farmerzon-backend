@@ -75,5 +75,12 @@ namespace FarmerzonBackendManager.Implementation
             return await GetEntitiesByReferenceIdAsLookupAsync(stateIds, nameof(stateIds), FarmerzonAddress,
                 "address/get-by-state-id");
         }
+
+        public async Task<IDictionary<string, DTO.Address>> GetAddressesByNormalizedUserName(IEnumerable<string> normalizedUserNames)
+        {
+            return await GetEntitiesByReferenceIdAsDictAsync(normalizedUserNames, nameof(normalizedUserNames),
+                FarmerzonAddress,
+                "address/get-by-normalized-user-name");
+        }
     }
 }

@@ -21,7 +21,7 @@ namespace FarmerzonBackend.GraphOutputType
 
         private void InitType()
         {
-            Name = "Country";
+            Name = "State";
             
             Field<IdGraphType, long>().Name("stateId");
 

@@ -41,7 +41,7 @@ namespace FarmerzonBackendManager.Implementation
             var httpClient = ClientFactory.CreateClient(FarmerzonAddress);
             httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", TokenManager.Token);
-            var builder = new UriBuilder($"{httpClient.BaseAddress}address")
+            var builder = new UriBuilder($"{httpClient.BaseAddress}city")
             {
                 Query = query.ToString() ?? string.Empty
             };
@@ -58,7 +58,7 @@ namespace FarmerzonBackendManager.Implementation
         }
 
         public async Task<IDictionary<long, DTO.City>> GetCitiesByAddressIdAsync(IEnumerable<long> addressIds)
-        {
+        { 
             return await GetEntitiesByReferenceIdAsDictAsync(addressIds, nameof(addressIds), FarmerzonAddress,
                 "city/get-by-address-id");
         }

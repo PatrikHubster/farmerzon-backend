@@ -28,7 +28,7 @@ namespace FarmerzonBackendManager.Implementation
             FarmerzonArticles = "FarmerzonArticles";
         }
 
-        private async Task<string> GetEntitiesByReferenceIdsAsStringAsync(IEnumerable<long> referenceIds, 
+        private async Task<string> GetEntitiesByReferenceIdsAsStringAsync<D>(IEnumerable<D> referenceIds, 
             string referenceName, string serviceName, string serviceEndpoint)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
@@ -57,24 +57,25 @@ namespace FarmerzonBackendManager.Implementation
             return await httpResponse.Content.ReadAsStringAsync();
         }
         
-        protected async Task<ILookup<long, T>> GetEntitiesByReferenceIdAsLookupAsync(IEnumerable<long> referenceIds, 
-            string referenceName, string serviceName, string serviceEndpoint)
+        protected async Task<ILookup<D, T>> GetEntitiesByReferenceIdAsLookupAsync<D>(IEnumerable<D> referenceIds, 
+            string referenceName, string serviceName, string serviceEndpoint) where D : IConvertible
         {
             var httpResponseContent =
                 await GetEntitiesByReferenceIdsAsStringAsync(referenceIds, referenceName, serviceName, serviceEndpoint);
             var entities = JsonConvert.DeserializeObject<DTO.DictionaryResponse<IList<T>>>(httpResponseContent);
             return entities.Content
                 .SelectMany(x => x.Value, Tuple.Create)
-                .ToLookup(y => long.Parse(y.Item1.Key), y => y.Item2);
+                .ToLookup(y => (D) Convert.ChangeType(y.Item1.Key, typeof(D)), y => y.Item2);
         }
         
-        protected async Task<IDictionary<long, T>> GetEntitiesByReferenceIdAsDictAsync(IEnumerable<long> referenceIds,
-            string referenceName, string serviceName, string serviceEndpoint)
+        protected async Task<IDictionary<D, T>> GetEntitiesByReferenceIdAsDictAsync<D>(IEnumerable<D> referenceIds,
+            string referenceName, string serviceName, string serviceEndpoint) where D : IConvertible
         {
             var httpResponseContent =
                 await GetEntitiesByReferenceIdsAsStringAsync(referenceIds, referenceName, serviceName, serviceEndpoint);
             var entities = JsonConvert.DeserializeObject<DTO.DictionaryResponse<T>>(httpResponseContent);
-            return entities.Content.ToDictionary(key => long.Parse(key.Key), value => value.Value);
+            return entities.Content.ToDictionary(key => (D) Convert.ChangeType(key.Key, typeof(D)),
+                value => value.Value);
         }
     }
 }

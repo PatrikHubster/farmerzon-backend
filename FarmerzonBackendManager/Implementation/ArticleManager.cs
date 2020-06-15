@@ -84,10 +84,10 @@ namespace FarmerzonBackendManager.Implementation
             return articles.Content;
         }
 
-        public async Task<ILookup<long, Article>> GetArticlesByPersonIdAsync(IEnumerable<long> personIds)
+        public async Task<ILookup<string, Article>> GetArticlesByPersonNormalizedUserNameAsync(IEnumerable<string> normalizedUserNames)
         {
-            return await GetEntitiesByReferenceIdAsLookupAsync(personIds, nameof(personIds), FarmerzonArticles,
-                "article/get-by-person-id");
+            return await GetEntitiesByReferenceIdAsLookupAsync(normalizedUserNames, nameof(normalizedUserNames),
+                FarmerzonArticles, "article/get-by-normalized-user-name");
         }
 
         public async Task<ILookup<long, Article>> GetArticlesByUnitIdAsync(IEnumerable<long> unitIds)

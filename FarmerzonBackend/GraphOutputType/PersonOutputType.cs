@@ -11,11 +11,14 @@ namespace FarmerzonBackend.GraphOutputType
     public class PersonOutputType : ObjectGraphType<DTO.Person>
     {
         private IDataLoaderContextAccessor Accessor { get; set; }
+        private IAddressManager AddressManager { get; set; }
         private IArticleManager ArticleManager { get; set; }
 
-        private void InitDependencies(IDataLoaderContextAccessor accessor, IArticleManager articleManager)
+        private void InitDependencies(IDataLoaderContextAccessor accessor, IAddressManager addressManager,
+            IArticleManager articleManager)
         {
             Accessor = accessor;
+            AddressManager = addressManager;
             ArticleManager = articleManager;
         }
 
@@ -35,23 +38,26 @@ namespace FarmerzonBackend.GraphOutputType
             Field<StringGraphType, string>().Name("userName");
         }
 
-        private Task<DTO.Address> LoadAddress(ResolveFieldContext<DTO.Person> arg)
+        public PersonOutputType(IDataLoaderContextAccessor accessor, IAddressManager addressManager,
+            IArticleManager articleManager)
         {
-            throw new System.NotImplementedException();
-        }
-
-        public PersonOutputType(IDataLoaderContextAccessor accessor, IArticleManager articleManager)
-        {
-            InitDependencies(accessor, articleManager);
+            InitDependencies(accessor, addressManager, articleManager);
             InitType();
+        }
+        
+        private Task<DTO.Address> LoadAddress(ResolveFieldContext<DTO.Person> context)
+        {
+            var loader = Accessor.Context.GetOrAddBatchLoader<string, DTO.Address>("GetAddressByNormalizedUserName",
+                AddressManager.GetAddressesByNormalizedUserName);
+            return loader.LoadAsync(context.Source.NormalizedUserName);
         }
         
         private Task<IEnumerable<DTO.Article>> LoadArticles(ResolveFieldContext<DTO.Person> context)
         {
             var loader = 
-                Accessor.Context.GetOrAddCollectionBatchLoader<long, DTO.Article>("GetArticlesByPersonId",
-                    ArticleManager.GetArticlesByPersonIdAsync);
-            return loader.LoadAsync(context.Source.PersonId);
+                Accessor.Context.GetOrAddCollectionBatchLoader<string, DTO.Article>("GetArticlesByNormalizedUserName",
+                    ArticleManager.GetArticlesByPersonNormalizedUserNameAsync);
+            return loader.LoadAsync(context.Source.NormalizedUserName);
         }
     }
 }

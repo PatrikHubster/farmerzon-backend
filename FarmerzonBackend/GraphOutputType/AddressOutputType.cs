@@ -34,10 +34,10 @@ namespace FarmerzonBackend.GraphOutputType
                 .Name("city")
                 .ResolveAsync(LoadCity);
             Field<CountryOutputType, DTO.Country>()
-                .Name("city")
+                .Name("country")
                 .ResolveAsync(LoadCountry);
             Field<StateOutputType, DTO.State>()
-                .Name("city")
+                .Name("state")
                 .ResolveAsync(LoadState);
 
             Field<StringGraphType, string>().Name("doorNumber");
@@ -57,18 +57,18 @@ namespace FarmerzonBackend.GraphOutputType
                 CityManager.GetCitiesByAddressIdAsync);
             return loader.LoadAsync(context.Source.AddressId);
         }
-        
-        private Task<DTO.State> LoadState(ResolveFieldContext<DTO.Address> context)
-        {
-            var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.State>("GetStateByAddressId",
-                StateManager.GetStatesByAddressIdAsync);
-            return loader.LoadAsync(context.Source.AddressId);
-        }
 
         private Task<DTO.Country> LoadCountry(ResolveFieldContext<DTO.Address> context)
         {
             var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.Country>("GetCountryByAddressId",
                 CountryManager.GetCountriesByAddressIdAsync);
+            return loader.LoadAsync(context.Source.AddressId);
+        }
+        
+        private Task<DTO.State> LoadState(ResolveFieldContext<DTO.Address> context)
+        {
+            var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.State>("GetStateByAddressId",
+                StateManager.GetStatesByAddressIdAsync);
             return loader.LoadAsync(context.Source.AddressId);
         }
     }

@@ -41,7 +41,7 @@ namespace FarmerzonBackendManager.Implementation
             var httpClient = ClientFactory.CreateClient(FarmerzonAddress);
             httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", TokenManager.Token);
-            var builder = new UriBuilder($"{httpClient.BaseAddress}address")
+            var builder = new UriBuilder($"{httpClient.BaseAddress}country")
             {
                 Query = query.ToString() ?? string.Empty
             };
