@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FarmerzonBackend.GraphControllerType;
 using FarmerzonBackendManager.Interface;
@@ -62,7 +61,7 @@ namespace FarmerzonBackend.Controllers
                 return BadRequest(result);
             }
 
-            return Ok(result.Data);
+            return Ok(result);
         }
     }
 }
