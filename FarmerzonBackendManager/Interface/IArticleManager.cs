@@ -14,5 +14,6 @@ namespace FarmerzonBackendManager.Interface
         public Task<ILookup<string, DTO.Article>> GetArticlesByPersonNormalizedUserNameAsync(
             IEnumerable<string> normalizedUserNames);
         public Task<ILookup<long, DTO.Article>> GetArticlesByUnitIdAsync(IEnumerable<long> unitIds);
+        public Task<DTO.Article> AddArticle(DTO.Article article);
     }
 }

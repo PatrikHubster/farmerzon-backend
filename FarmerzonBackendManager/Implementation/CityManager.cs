@@ -53,7 +53,7 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var cities = JsonConvert.DeserializeObject<DTO.ListResponse<DTO.City>>(httpResponseContent);
+            var cities = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.City>>>(httpResponseContent);
             return cities.Content;
         }
 

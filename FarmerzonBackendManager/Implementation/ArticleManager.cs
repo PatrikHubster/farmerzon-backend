@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using FarmerzonBackendDataTransferModel;
@@ -80,7 +81,7 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var articles = JsonConvert.DeserializeObject<ListResponse<Article>>(httpResponseContent);
+            var articles = JsonConvert.DeserializeObject<SuccessResponse<IList<Article>>>(httpResponseContent);
             return articles.Content;
         }
 
@@ -94,6 +95,26 @@ namespace FarmerzonBackendManager.Implementation
         {
             return await GetEntitiesByReferenceIdAsLookupAsync(unitIds, nameof(unitIds), FarmerzonArticles,
                 "article/get-by-unit-id");
+        }
+
+        public async Task<Article> AddArticle(Article article)
+        {
+            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
+            var builder = new UriBuilder($"{httpClient.BaseAddress}article");
+            var json = JsonConvert.SerializeObject(article);
+            var data = new StringContent(json, Encoding.UTF8, "application/json");
+            var httpResponse = await httpClient.PostAsync(builder.Uri, data);
+
+            if (httpResponse.StatusCode != HttpStatusCode.OK)
+            {
+                return null;
+            }
+
+            var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<SuccessResponse<Article>>(httpResponseContent);
+            return result.Content;
         }
     }
 }

@@ -62,7 +62,7 @@ namespace FarmerzonBackendManager.Implementation
         {
             var httpResponseContent =
                 await GetEntitiesByReferenceIdsAsStringAsync(referenceIds, referenceName, serviceName, serviceEndpoint);
-            var entities = JsonConvert.DeserializeObject<DTO.DictionaryResponse<IList<T>>>(httpResponseContent);
+            var entities = JsonConvert.DeserializeObject<DTO.SuccessResponse<Dictionary<string, IList<T>>>>(httpResponseContent);
             return entities.Content
                 .SelectMany(x => x.Value, Tuple.Create)
                 .ToLookup(y => (D) Convert.ChangeType(y.Item1.Key, typeof(D)), y => y.Item2);
@@ -73,7 +73,7 @@ namespace FarmerzonBackendManager.Implementation
         {
             var httpResponseContent =
                 await GetEntitiesByReferenceIdsAsStringAsync(referenceIds, referenceName, serviceName, serviceEndpoint);
-            var entities = JsonConvert.DeserializeObject<DTO.DictionaryResponse<T>>(httpResponseContent);
+            var entities = JsonConvert.DeserializeObject<DTO.SuccessResponse<Dictionary<string, T>>>(httpResponseContent);
             return entities.Content.ToDictionary(key => (D) Convert.ChangeType(key.Key, typeof(D)),
                 value => value.Value);
         }
