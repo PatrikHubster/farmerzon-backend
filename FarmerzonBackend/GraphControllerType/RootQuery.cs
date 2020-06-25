@@ -53,7 +53,8 @@ namespace FarmerzonBackend.GraphControllerType
                     new QueryArgument<IntGraphType> {Name = "amount"},
                     new QueryArgument<FloatGraphType> {Name = "size"},
                     new QueryArgument<DateTimeGraphType> {Name = "createdAt"},
-                    new QueryArgument<DateTimeGraphType> {Name = "updatedAt"}
+                    new QueryArgument<DateTimeGraphType> {Name = "updatedAt"},
+                    new QueryArgument<DateTimeGraphType> {Name = "expirationDate"}
                 }, resolve: LoadArticles);
 
             Field<ListGraphType<CityOutputType>>(name: "cities",
@@ -122,8 +123,9 @@ namespace FarmerzonBackend.GraphControllerType
             var size = context.GetArgument<double?>("size");
             var createdAt = context.GetArgument<DateTime?>("createdAt");
             var updatedAt = context.GetArgument<DateTime?>("updatedAt");
+            var expirationDate = context.GetArgument<DateTime?>("expirationDate");
             return await ArticleManager.GetEntitiesAsync(articleId, name, description, price, amount, size, 
-                createdAt, updatedAt);
+                createdAt, updatedAt, expirationDate);
         }
         
         private async Task<IList<DTO.City>> LoadCities(ResolveFieldContext<object> context)

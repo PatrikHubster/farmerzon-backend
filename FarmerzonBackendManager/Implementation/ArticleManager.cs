@@ -21,9 +21,10 @@ namespace FarmerzonBackendManager.Implementation
         {
             // nothing to do here
         }
-        
-        public async Task<IList<Article>> GetEntitiesAsync(long? articleId, string name, string description, 
-            double? price, int? amount, double? size, DateTime? createdAt, DateTime? updatedAt)
+
+        public async Task<IList<Article>> GetEntitiesAsync(long? articleId, string name, string description,
+            double? price, int? amount, double? size, DateTime? createdAt, DateTime? updatedAt,
+            DateTime? expirationDate)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (articleId != null)
@@ -64,6 +65,11 @@ namespace FarmerzonBackendManager.Implementation
             if (updatedAt != null)
             {
                 query.Add(nameof(updatedAt), updatedAt.Value.ToString(CultureInfo.CurrentCulture));
+            }
+
+            if (expirationDate != null)
+            {
+                query.Add(nameof(expirationDate), expirationDate.Value.ToString(CultureInfo.CurrentCulture));
             }
 
             var httpClient = ClientFactory.CreateClient(FarmerzonArticles);

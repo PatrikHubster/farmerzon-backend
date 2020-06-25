@@ -42,6 +42,7 @@ namespace FarmerzonBackend.GraphOutputType
             Field<IntGraphType, int>().Name("amount");
             Field<DateTimeGraphType, DateTime>().Name("updatedAt");
             Field<DateTimeGraphType, DateTime>().Name("createdAt");
+            Field<DateTimeGraphType, DateTime>().Name("expirationDate");
         }
         
         public ArticleOutputType(IDataLoaderContextAccessor accessor, IPersonManager personManager, 

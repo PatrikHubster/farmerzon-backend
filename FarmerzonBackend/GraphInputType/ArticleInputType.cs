@@ -1,3 +1,4 @@
+using System;
 using GraphQL.Types;
 
 using DTO = FarmerzonBackendDataTransferModel;
@@ -16,6 +17,7 @@ namespace FarmerzonBackend.GraphInputType
             Field<NonNullGraphType<FloatGraphType>, double>().Name("price");
             Field<NonNullGraphType<FloatGraphType>, double>().Name("size");
             Field<NonNullGraphType<IntGraphType>, int>().Name("amount");
+            Field<NonNullGraphType<DateTimeGraphType>, DateTime>().Name("expirationDate");
         }
         
         public ArticleInputType()
