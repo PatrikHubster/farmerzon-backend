@@ -12,7 +12,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackendManager.Implementation
 {
-    public class UnitManager : AbstractManager<DTO.Unit>, IUnitManager
+    public class UnitManager : AbstractManager<DTO.UnitOutput>, IUnitManager
     {
         public UnitManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
             base(clientFactory, tokenManager)
@@ -20,7 +20,7 @@ namespace FarmerzonBackendManager.Implementation
             // nothing to do here
         }
         
-        public async Task<IList<DTO.Unit>> GetEntitiesAsync(long? unitId, string name)
+        public async Task<IList<DTO.UnitOutput>> GetEntitiesAsync(long? unitId, string name)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (unitId != null)
@@ -48,11 +48,11 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var units = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.Unit>>>(httpResponseContent);
+            var units = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.UnitOutput>>>(httpResponseContent);
             return units.Content;
         }
 
-        public async Task<IDictionary<long, DTO.Unit>> GetUnitsByArticleIdAsync(IEnumerable<long> articleIds)
+        public async Task<IDictionary<long, DTO.UnitOutput>> GetUnitsByArticleIdAsync(IEnumerable<long> articleIds)
         {
             return await GetEntitiesByReferenceIdAsDictAsync(articleIds, nameof(articleIds), FarmerzonArticles,
                 "unit/get-by-article-id"); 

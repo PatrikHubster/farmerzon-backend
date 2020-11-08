@@ -26,22 +26,13 @@ namespace FarmerzonBackend
             Configuration = configuration;
         }
 
-        readonly string allowOrigins = "allowOrigins";
-        
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
         
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(c => 
-            {
-                c.AddPolicy(allowOrigins,
-                    options =>
-                    {
-                        options.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
-                    });
-            });
+            services.AddControllers().AddDapr();
             
             // Adding the micrservices like described on:
             // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-3.1
@@ -130,14 +121,18 @@ namespace FarmerzonBackend
             }
 
             app.UseRouting();
-            app.UseCors(allowOrigins);
+            app.UseCloudEvents();
 
             // It is important to use app.UseAuthentication(); before app.UseAuthorization();
             // Otherwise authentication with json web tokens doesn't work.
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapSubscribeHandler();
+                endpoints.MapControllers();
+            });
         }
     }
 }

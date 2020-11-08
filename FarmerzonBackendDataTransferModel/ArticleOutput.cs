@@ -2,13 +2,12 @@ using System;
 
 namespace FarmerzonBackendDataTransferModel
 {
-    public class Article
+    public class ArticleOutput : BaseModelOutput
     {
-        public long ArticleId { get; set; }
-        
-        public Person Person { get; set; }
-        public Unit Unit { get; set; }
-        
+        // relationships
+        public UnitOutput Unit { get; set; }
+
+        // attributes
         public string Name { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }

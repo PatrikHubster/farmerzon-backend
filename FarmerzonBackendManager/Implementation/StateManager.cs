@@ -12,7 +12,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackendManager.Implementation
 {
-    public class StateManager : AbstractManager<DTO.State>, IStateManager
+    public class StateManager : AbstractManager<DTO.StateOutput>, IStateManager
     {
         public StateManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
             base(clientFactory, tokenManager)
@@ -20,7 +20,7 @@ namespace FarmerzonBackendManager.Implementation
             // nothing to do here
         }
 
-        public async Task<IList<DTO.State>> GetEntitiesAsync(long? stateId, string name)
+        public async Task<IList<DTO.StateOutput>> GetEntitiesAsync(long? stateId, string name)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (stateId != null)
@@ -48,11 +48,11 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var states = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.State>>>(httpResponseContent);
+            var states = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.StateOutput>>>(httpResponseContent);
             return states.Content;
         }
 
-        public async Task<IDictionary<long, DTO.State>> GetStatesByAddressIdAsync(IEnumerable<long> addressIds)
+        public async Task<IDictionary<long, DTO.StateOutput>> GetStatesByAddressIdAsync(IEnumerable<long> addressIds)
         {
             return await GetEntitiesByReferenceIdAsDictAsync(addressIds, nameof(addressIds), FarmerzonAddress,
                 "state/get-by-address-id");

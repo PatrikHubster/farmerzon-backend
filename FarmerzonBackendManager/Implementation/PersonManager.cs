@@ -12,7 +12,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackendManager.Implementation
 {
-    public class PersonManager : AbstractManager<DTO.Person>, IPersonManager
+    public class PersonManager : AbstractManager<DTO.PersonOutput>, IPersonManager
     {
         public PersonManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
             base(clientFactory, tokenManager)
@@ -20,7 +20,7 @@ namespace FarmerzonBackendManager.Implementation
             // nothing to do here
         }
 
-        public async Task<IList<DTO.Person>> GetEntitiesAsync(long? personId, string userName, string normalizedUserName)
+        public async Task<IList<DTO.PersonOutput>> GetEntitiesAsync(long? personId, string userName, string normalizedUserName)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (personId != null)
@@ -53,11 +53,11 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var people = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.Person>>>(httpResponseContent);
+            var people = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.PersonOutput>>>(httpResponseContent);
             return people.Content;
         }
 
-        public async Task<IDictionary<long, DTO.Person>> GetPeopleByArticleIdAsync(IEnumerable<long> articleIds)
+        public async Task<IDictionary<long, DTO.PersonOutput>> GetPeopleByArticleIdAsync(IEnumerable<long> articleIds)
         {
             return await GetEntitiesByReferenceIdAsDictAsync(articleIds, nameof(articleIds), FarmerzonArticles,
                 "person/get-by-article-id");

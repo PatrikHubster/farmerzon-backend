@@ -12,7 +12,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackendManager.Implementation
 {
-    public class CountryManager : AbstractManager<DTO.Country>, ICountryManager
+    public class CountryManager : AbstractManager<DTO.CountryOutput>, ICountryManager
     {
         public CountryManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
             base(clientFactory, tokenManager)
@@ -20,7 +20,7 @@ namespace FarmerzonBackendManager.Implementation
             // nothing to do here
         }
 
-        public async Task<IList<DTO.Country>> GetEntitiesAsync(long? countryId, string name, string code)
+        public async Task<IList<DTO.CountryOutput>> GetEntitiesAsync(long? countryId, string name, string code)
         {
             var query = HttpUtility.ParseQueryString(string.Empty);
             if (countryId != null)
@@ -53,11 +53,11 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var countries = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.Country>>>(httpResponseContent);
+            var countries = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.CountryOutput>>>(httpResponseContent);
             return countries.Content;
         }
 
-        public async Task<IDictionary<long, DTO.Country>> GetCountriesByAddressIdAsync(IEnumerable<long> addressIds)
+        public async Task<IDictionary<long, DTO.CountryOutput>> GetCountriesByAddressIdAsync(IEnumerable<long> addressIds)
         {
             return await GetEntitiesByReferenceIdAsDictAsync(addressIds, nameof(addressIds), FarmerzonAddress,
                 "country/get-by-address-id");

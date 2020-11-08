@@ -8,13 +8,14 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using FarmerzonBackendDataTransferModel;
 using FarmerzonBackendManager.Interface;
 using Newtonsoft.Json;
 
+using DTO = FarmerzonBackendDataTransferModel;
+
 namespace FarmerzonBackendManager.Implementation
 {
-    public class ArticleManager : AbstractManager<Article>, IArticleManager
+    public class ArticleManager : AbstractManager<DTO.ArticleOutput>, IArticleManager
     {
         public ArticleManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
             base(clientFactory, tokenManager)
@@ -22,7 +23,7 @@ namespace FarmerzonBackendManager.Implementation
             // nothing to do here
         }
 
-        public async Task<IList<Article>> GetEntitiesAsync(long? articleId, string name, string description,
+        public async Task<IList<DTO.ArticleOutput>> GetEntitiesAsync(long? articleId, string name, string description,
             double? price, int? amount, double? size, DateTime? createdAt, DateTime? updatedAt,
             DateTime? expirationDate)
         {
@@ -87,23 +88,23 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var articles = JsonConvert.DeserializeObject<SuccessResponse<IList<Article>>>(httpResponseContent);
+            var articles = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.ArticleOutput>>>(httpResponseContent);
             return articles.Content;
         }
 
-        public async Task<ILookup<string, Article>> GetArticlesByPersonNormalizedUserNameAsync(IEnumerable<string> normalizedUserNames)
+        public async Task<ILookup<string, DTO.ArticleOutput>> GetArticlesByPersonNormalizedUserNameAsync(IEnumerable<string> normalizedUserNames)
         {
             return await GetEntitiesByReferenceIdAsLookupAsync(normalizedUserNames, nameof(normalizedUserNames),
                 FarmerzonArticles, "article/get-by-normalized-user-name");
         }
 
-        public async Task<ILookup<long, Article>> GetArticlesByUnitIdAsync(IEnumerable<long> unitIds)
+        public async Task<ILookup<long, DTO.ArticleOutput>> GetArticlesByUnitIdAsync(IEnumerable<long> unitIds)
         {
             return await GetEntitiesByReferenceIdAsLookupAsync(unitIds, nameof(unitIds), FarmerzonArticles,
                 "article/get-by-unit-id");
         }
 
-        public async Task<Article> AddArticle(Article article)
+        public async Task<DTO.ArticleOutput> AddArticle(DTO.ArticleInput article)
         {
             var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
             httpClient.DefaultRequestHeaders.Authorization =
@@ -119,7 +120,7 @@ namespace FarmerzonBackendManager.Implementation
             }
 
             var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<SuccessResponse<Article>>(httpResponseContent);
+            var result = JsonConvert.DeserializeObject<DTO.SuccessResponse<DTO.ArticleOutput>>(httpResponseContent);
             return result.Content;
         }
     }

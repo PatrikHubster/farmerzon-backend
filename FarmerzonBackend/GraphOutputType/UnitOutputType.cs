@@ -8,7 +8,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackend.GraphOutputType
 {
-    public class UnitOutputType : ObjectGraphType<DTO.Unit>
+    public class UnitOutputType : ObjectGraphType<DTO.UnitOutput>
     {
         private IDataLoaderContextAccessor Accessor { get; set; }
         private IArticleManager ArticleManager { get; set; }
@@ -24,7 +24,7 @@ namespace FarmerzonBackend.GraphOutputType
             Name = "Unit";
             Field<IdGraphType, long>(name: "unitId");
             
-            Field<ListGraphType<ArticleOutputType>, IEnumerable<DTO.Article>>()
+            Field<ListGraphType<ArticleOutputType>, IEnumerable<DTO.ArticleOutput>>()
                 .Name("articles")
                 .ResolveAsync(LoadArticles);
             
@@ -37,7 +37,7 @@ namespace FarmerzonBackend.GraphOutputType
             InitType();
         }
         
-        private Task<IEnumerable<DTO.Article>> LoadArticles(ResolveFieldContext<DTO.Unit> context)
+        private Task<IEnumerable<DTO.ArticleOutput>> LoadArticles(ResolveFieldContext<DTO.Unit> context)
         {
             var loader =
                 Accessor.Context.GetOrAddCollectionBatchLoader<long, DTO.Article>("GetArticlesByUnitId",
