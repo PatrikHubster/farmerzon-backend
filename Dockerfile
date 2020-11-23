@@ -1,4 +1,4 @@
-ARG IMAGE=
+ARG IMAGE=latest
 FROM mcr.microsoft.com/dotnet/core/sdk:${IMAGE} AS base
 WORKDIR /app
 ENV ASPNETCORE_ENVIRONMENT Production

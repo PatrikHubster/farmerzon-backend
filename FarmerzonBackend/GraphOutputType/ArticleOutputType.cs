@@ -8,7 +8,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackend.GraphOutputType
 {
-    public class ArticleOutputType : ObjectGraphType<DTO.Article>
+    public class ArticleOutputType : ObjectGraphType<DTO.ArticleOutput>
     {
         private IDataLoaderContextAccessor Accessor { get; set; }
         private IPersonManager PersonManager { get; set; }
@@ -26,14 +26,14 @@ namespace FarmerzonBackend.GraphOutputType
         {
             Name = "Article";
             
-            Field<IdGraphType, long>().Name("articleId");
+            Field<IdGraphType, long>().Name("id");
             
-            Field<PersonOutputType, DTO.Person>()
+            Field<PersonOutputType, DTO.PersonOutput>()
                 .Name("person")
-                .ResolveAsync(LoadPerson);
-            Field<UnitOutputType, DTO.Unit>()
+                .ResolveAsync(LoadPersonAsync);
+            Field<UnitOutputType, DTO.UnitOutput>()
                 .Name("unit")
-                .ResolveAsync(LoadUnit);
+                .ResolveAsync(LoadUnitAsync);
             
             Field<StringGraphType, string>().Name("name");
             Field<StringGraphType, string>().Name("description");
@@ -52,18 +52,18 @@ namespace FarmerzonBackend.GraphOutputType
             InitType();
         }
 
-        private Task<DTO.Unit> LoadUnit(ResolveFieldContext<DTO.Article> context)
+        private Task<DTO.UnitOutput> LoadUnitAsync(ResolveFieldContext<DTO.ArticleOutput> context)
         {
-            var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.Unit>("GetUnitByArticleId", 
+            var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.UnitOutput>("GetUnitByArticleIdAsync", 
                 UnitManager.GetUnitsByArticleIdAsync);
-            return loader.LoadAsync(context.Source.ArticleId);
+            return loader.LoadAsync(context.Source.Id);
         }
 
-        private Task<DTO.Person> LoadPerson(ResolveFieldContext<DTO.Article> context)
+        private Task<DTO.PersonOutput> LoadPersonAsync(ResolveFieldContext<DTO.ArticleOutput> context)
         {
-            var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.Person>("GetPersonByArticleId", 
+            var loader = Accessor.Context.GetOrAddBatchLoader<long, DTO.PersonOutput>("GetPersonByArticleIdAsync", 
                 PersonManager.GetPeopleByArticleIdAsync);
-            return loader.LoadAsync(context.Source.ArticleId);
+            return loader.LoadAsync(context.Source.Id);
         }
     }
 }

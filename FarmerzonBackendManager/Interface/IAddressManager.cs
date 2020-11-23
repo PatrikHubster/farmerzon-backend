@@ -12,7 +12,7 @@ namespace FarmerzonBackendManager.Interface
         public Task<ILookup<long, DTO.AddressOutput>> GetAddressesByCityIdAsync(IEnumerable<long> cityIds);
         public Task<ILookup<long, DTO.AddressOutput>> GetAddressesByCountryIdAsync(IEnumerable<long> countryIds);
         public Task<ILookup<long, DTO.AddressOutput>> GetAddressesByStateIdAsync(IEnumerable<long> stateIds);
-        public Task<IDictionary<string, DTO.AddressOutput>> GetAddressesByNormalizedUserName(
+        public Task<ILookup<string, DTO.AddressOutput>> GetAddressesByNormalizedUserNameAsync(
             IEnumerable<string> normalizedUserNames);
     }
 }

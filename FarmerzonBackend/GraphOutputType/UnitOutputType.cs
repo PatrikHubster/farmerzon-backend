@@ -22,11 +22,12 @@ namespace FarmerzonBackend.GraphOutputType
         private void InitType()
         {
             Name = "Unit";
-            Field<IdGraphType, long>(name: "unitId");
+            
+            Field<IdGraphType, long>(name: "id");
             
             Field<ListGraphType<ArticleOutputType>, IEnumerable<DTO.ArticleOutput>>()
                 .Name("articles")
-                .ResolveAsync(LoadArticles);
+                .ResolveAsync(LoadArticlesAsync);
             
             Field<StringGraphType, string>().Name("name");            
         }
@@ -37,12 +38,12 @@ namespace FarmerzonBackend.GraphOutputType
             InitType();
         }
         
-        private Task<IEnumerable<DTO.ArticleOutput>> LoadArticles(ResolveFieldContext<DTO.Unit> context)
+        private Task<IEnumerable<DTO.ArticleOutput>> LoadArticlesAsync(ResolveFieldContext<DTO.UnitOutput> context)
         {
             var loader =
-                Accessor.Context.GetOrAddCollectionBatchLoader<long, DTO.Article>("GetArticlesByUnitId",
+                Accessor.Context.GetOrAddCollectionBatchLoader<long, DTO.ArticleOutput>("GetArticleByUnitIdAsync",
                     ArticleManager.GetArticlesByUnitIdAsync);
-            return loader.LoadAsync(context.Source.UnitId);
+            return loader.LoadAsync(context.Source.Id);
         }
     }
 }

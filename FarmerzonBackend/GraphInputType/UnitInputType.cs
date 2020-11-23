@@ -4,7 +4,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackend.GraphInputType
 {
-    public class UnitInputType : InputObjectGraphType<DTO.Unit>
+    public class UnitInputType : InputObjectGraphType<DTO.UnitInput>
     {
         public void InitType()
         {

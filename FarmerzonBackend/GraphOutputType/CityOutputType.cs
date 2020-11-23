@@ -8,7 +8,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackend.GraphOutputType
 {
-    public class CityOutputType : ObjectGraphType<DTO.City>
+    public class CityOutputType : ObjectGraphType<DTO.CityOutput>
     {
         private IDataLoaderContextAccessor Accessor { get; set; }
         private IAddressManager AddressManager { get; set; }
@@ -23,11 +23,11 @@ namespace FarmerzonBackend.GraphOutputType
         {
             Name = "City";
             
-            Field<IdGraphType, long>().Name("cityId");
+            Field<IdGraphType, long>().Name("id");
 
-            Field<ListGraphType<AddressOutputType>, IEnumerable<DTO.Address>>()
+            Field<ListGraphType<AddressOutputType>, IEnumerable<DTO.AddressOutput>>()
                 .Name("addresses")
-                .ResolveAsync(LoadAddresses);
+                .ResolveAsync(LoadAddressesAsync);
 
             Field<StringGraphType, string>().Name("zipCode");
             Field<StringGraphType, string>().Name("name");
@@ -39,12 +39,12 @@ namespace FarmerzonBackend.GraphOutputType
             InitType();
         }
         
-        private Task<IEnumerable<DTO.Address>> LoadAddresses(ResolveFieldContext<DTO.City> context)
+        private Task<IEnumerable<DTO.AddressOutput>> LoadAddressesAsync(ResolveFieldContext<DTO.CityOutput> context)
         {
             var loader =
-                Accessor.Context.GetOrAddCollectionBatchLoader<long, DTO.Address>("GetAddressesByCityId",
+                Accessor.Context.GetOrAddCollectionBatchLoader<long, DTO.AddressOutput>("GetAddressByCityIdAsync",
                     AddressManager.GetAddressesByCityIdAsync);
-            return loader.LoadAsync(context.Source.CityId);
+            return loader.LoadAsync(context.Source.Id);
         }
     }
 }

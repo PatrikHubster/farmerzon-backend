@@ -33,10 +33,10 @@ namespace FarmerzonBackend.GraphControllerType
             InitMutation();
         }
         
-        private async Task<DTO.ArticleOutput> AddArticle(ResolveFieldContext<object> context)
+        private Task<DTO.ArticleOutput> AddArticle(ResolveFieldContext<object> context)
         {
             var article = context.GetArgument<DTO.ArticleInput>("article");
-            return await ArticleManager.AddArticle(article);
+            return null;
         }
     }
 }

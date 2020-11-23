@@ -35,7 +35,7 @@ namespace FarmerzonBackend.GraphControllerType
         private void InitQuery()
         {
             Name = "RootQuery";
-            Field<ListGraphType<AddressOutputType>>("addresses",
+            Field<ListGraphType<AddressOutputType>>(name: "addresses",
                 arguments: new QueryArguments
                 {
                     new QueryArgument<IdGraphType> {Name = "id"},
@@ -65,7 +65,7 @@ namespace FarmerzonBackend.GraphControllerType
                     new QueryArgument<StringGraphType> {Name = "name"}
                 }, resolve: LoadCities);
 
-            Field<ListGraphType<CountryOutputType>>("countries",
+            Field<ListGraphType<CountryOutputType>>(name: "countries",
                 arguments: new QueryArguments
                 {
                     new QueryArgument<IdGraphType> {Name = "id"},
@@ -76,7 +76,6 @@ namespace FarmerzonBackend.GraphControllerType
             Field<ListGraphType<PersonOutputType>>(name: "people",
                 arguments: new QueryArguments
                 {
-                    new QueryArgument<IdGraphType> {Name = "id"},
                     new QueryArgument<StringGraphType> {Name = "userName"},
                     new QueryArgument<StringGraphType> {Name = "normalizedUserName"}
                 }, resolve: LoadPeople);
@@ -146,10 +145,9 @@ namespace FarmerzonBackend.GraphControllerType
         
         private async Task<IList<DTO.PersonOutput>> LoadPeople(ResolveFieldContext<object> context)
         {
-            var id = context.GetArgument<long?>("id");
             var userName = context.GetArgument<string>("userName");
             var normalizedUserName = context.GetArgument<string>("normalizedUserName");
-            return await PersonManager.GetEntitiesAsync(id, userName, normalizedUserName);
+            return await PersonManager.GetEntitiesAsync(userName, normalizedUserName);
         }
         
         private async Task<IList<DTO.StateOutput>> LoadStates(ResolveFieldContext<object> context)

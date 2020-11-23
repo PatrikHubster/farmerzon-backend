@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using FarmerzonBackend.GraphControllerType;
 using FarmerzonBackend.GraphOutputType;
@@ -33,20 +32,6 @@ namespace FarmerzonBackend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers().AddDapr();
-            
-            // Adding the micrservices like described on:
-            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-3.1
-            services.AddHttpClient("FarmerzonAddress", c =>
-            {
-                c.BaseAddress = new Uri($"http://{Configuration["BaseUrls:FarmerzonAddress:Host"]}:" +
-                                        $"{Configuration["BaseUrls:FarmerzonAddress:Port"]}");
-            });
-            
-            services.AddHttpClient("FarmerzonArticles", c =>
-            {
-                c.BaseAddress = new Uri($"http://{Configuration["BaseUrls:FarmerzonArticles:Host"]}:" +
-                    $"{Configuration["BaseUrls:FarmerzonArticles:Port"]}");
-            });
 
             // serialization for GraphQL error responses was not able. The following solution was found on stackoverflow
             // under the following url: https://stackoverflow.com/questions/59199593/net-core-3-0-possible-object-cycle
