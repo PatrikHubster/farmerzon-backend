@@ -12,7 +12,7 @@ namespace FarmerzonBackendManager.Interface
         public Task<IList<DTO.ArticleOutput>> GetEntitiesAsync(long? articleId, string name, string description,
             double? price, int? amount, double? size, DateTime? createdAt, DateTime? updatedAt,
             DateTime? expirationDate);
-        public Task<ILookup<string, DTO.ArticleOutput>> GetArticlesByPersonNormalizedUserNameAsync(
+        public Task<ILookup<string, DTO.ArticleOutput>> GetArticlesByNormalizedUserNameAsync(
             IEnumerable<string> normalizedUserNames);
         public Task<ILookup<long, DTO.ArticleOutput>> GetArticlesByUnitIdAsync(IEnumerable<long> unitIds);
     }

@@ -49,7 +49,7 @@ namespace FarmerzonBackendManager.Implementation
                     serviceEndpoint);
             return result?.Content
                 .SelectMany(x => x.Value, Tuple.Create)
-                .ToLookup(y => (T) Convert.ChangeType(y.Item1.Key, typeof(D)), y => y.Item2);
+                .ToLookup(y => (T) Convert.ChangeType(y.Item1.Key, typeof(T)), y => y.Item2);
         }
         
         protected async Task<IDictionary<T, D>> GetEntitiesByReferenceIdAsDictionaryAsync<T, D>(IEnumerable<T> referenceIds,

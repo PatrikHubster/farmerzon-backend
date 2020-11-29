@@ -28,7 +28,7 @@ namespace FarmerzonBackend.GraphOutputType
 
             Field<StringGraphType, string>().Name("normalizedUserName");
             
-            Field<AddressOutputType, IEnumerable<DTO.AddressOutput>>()
+            Field<ListGraphType<AddressOutputType>, IEnumerable<DTO.AddressOutput>>()
                 .Name("addresses")
                 .ResolveAsync(LoadAddressesAsync);
             Field<ListGraphType<ArticleOutputType>, IEnumerable<DTO.ArticleOutput>>()
@@ -55,7 +55,7 @@ namespace FarmerzonBackend.GraphOutputType
         private Task<IEnumerable<DTO.ArticleOutput>> LoadArticlesAsync(ResolveFieldContext<DTO.PersonOutput> context)
         {
             var loader = Accessor.Context.GetOrAddCollectionBatchLoader<string, DTO.ArticleOutput>(
-                "GetArticlesByNormalizedUserNameAsync", ArticleManager.GetArticlesByPersonNormalizedUserNameAsync);
+                "GetArticlesByNormalizedUserNameAsync", ArticleManager.GetArticlesByNormalizedUserNameAsync);
             return loader.LoadAsync(context.Source.NormalizedUserName);
         }
     }

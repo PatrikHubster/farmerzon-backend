@@ -81,7 +81,7 @@ namespace FarmerzonBackendManager.Implementation
             return result?.Content;
         }
 
-        public async Task<ILookup<string, DTO.ArticleOutput>> GetArticlesByPersonNormalizedUserNameAsync(
+        public async Task<ILookup<string, DTO.ArticleOutput>> GetArticlesByNormalizedUserNameAsync(
             IEnumerable<string> normalizedUserNames)
         {
             return await GetEntitiesByReferenceIdAsLookupsAsync<string, DTO.ArticleOutput>(normalizedUserNames,
