@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
@@ -13,7 +15,8 @@ namespace FarmerzonBackendManager.Implementation
         private const string UnitResource = "unit";
         private const string UnitByArticleEndpoint = "get-by-article-id";
         
-        public UnitManager(ITokenManager tokenManager, DaprClient daprClient) : base(tokenManager, daprClient)
+        public UnitManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<UnitManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
@@ -31,15 +34,14 @@ namespace FarmerzonBackendManager.Implementation
                 queryParameter.Add(nameof(name), name);
             }
 
-            var result =
-                await GetEntitiesAsync<DTO.SuccessResponse<IList<DTO.UnitOutput>>>(queryParameter, ArticlesServiceName,
-                    UnitResource);
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.UnitOutput>>>(ArticlesServiceName,
+                UnitResource, HTTPVerb.Get, queryParameters: queryParameter);
             return result?.Content;
         }
 
         public async Task<IDictionary<long, DTO.UnitOutput>> GetUnitsByArticleIdAsync(IEnumerable<long> articleIds)
         {
-            return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.UnitOutput>(articleIds, nameof(articleIds),
+            return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.UnitOutput>(articleIds,
                 ArticlesServiceName, $"{UnitResource}/{UnitByArticleEndpoint}");
         }
     }

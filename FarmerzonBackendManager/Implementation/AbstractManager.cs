@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Dapr.Client;
 using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
@@ -14,56 +15,64 @@ namespace FarmerzonBackendManager.Implementation
     {
         protected ITokenManager TokenManager { get; set; }
         protected DaprClient DaprClient { get; set; }
+        protected ILogger Logger { get; set; }
 
-        public AbstractManager(ITokenManager tokenManager, DaprClient daprClient)
+        public AbstractManager(ITokenManager tokenManager, DaprClient daprClient, ILogger logger)
         {
             TokenManager = tokenManager;
             DaprClient = daprClient;
+            Logger = logger;
         }
 
-        protected async Task<T> GetEntitiesAsync<T>(IDictionary<string, string> queryParameters, 
-            string serviceName, string serviceEndpoint)
+        private HTTPExtension GenerateExtension(HTTPVerb type, IDictionary<string, string> queryParameters = null)
         {
             var httpExtension = new HTTPExtension
             {
-                ContentType = "application/json", 
-                Verb = HTTPVerb.Get
+                ContentType = "application/json",
+                Verb = type
             };
             httpExtension.Headers.Add("Authorization", $"Bearer {TokenManager.Token}");
-            httpExtension.QueryString = queryParameters;
-            
-            return await DaprClient.InvokeMethodAsync<T>(serviceName, serviceEndpoint, httpExtension);
-        }
-        
-        protected async Task<ILookup<T, D>> GetEntitiesByReferenceIdAsLookupsAsync<T, D>(IEnumerable<T> referenceIds, 
-            string referenceName, string serviceName, string serviceEndpoint) where T : IConvertible
-        {
-            IDictionary<string, string> queryParameters = new Dictionary<string, string>();
-            foreach (var referenceId in referenceIds)
+
+            if (queryParameters != null)
             {
-                queryParameters.Add(referenceName, referenceId.ToString());
+                httpExtension.QueryString = queryParameters;
             }
 
+            return httpExtension;
+        }
+        
+        protected async Task<TOut> InvokeMethodAsync<TOut>(string serviceName, string serviceEndpoint, HTTPVerb type,
+            IDictionary<string, string> queryParameters = null)
+        {
+            var httpExtension = GenerateExtension(type, queryParameters: queryParameters);
+            return await DaprClient.InvokeMethodAsync<TOut>(serviceName, serviceEndpoint, httpExtension);
+        }
+
+        protected async Task<TOut> InvokeMethodAsync<TOut, TBody>(string serviceName, string serviceEndpoint,
+            HTTPVerb type, IDictionary<string, string> queryParameters = null, TBody body = null) where TBody : class
+        {
+            var httpExtension = GenerateExtension(type, queryParameters: queryParameters);
+            return await DaprClient.InvokeMethodAsync<TBody, TOut>(serviceName, serviceEndpoint, body,
+                httpExtension);
+        }
+
+        protected async Task<ILookup<T, D>> GetEntitiesByReferenceIdAsLookupsAsync<T, D>(IEnumerable<T> referenceIds, 
+            string serviceName, string serviceEndpoint) where T : IConvertible
+        {
             var result =
-                await GetEntitiesAsync<DTO.SuccessResponse<Dictionary<string, IList<D>>>>(queryParameters, serviceName,
-                    serviceEndpoint);
+                await InvokeMethodAsync<DTO.SuccessResponse<Dictionary<string, IList<D>>>, IEnumerable<T>>(serviceName,
+                    serviceEndpoint, HTTPVerb.Post, body: referenceIds);
             return result?.Content
                 .SelectMany(x => x.Value, Tuple.Create)
                 .ToLookup(y => (T) Convert.ChangeType(y.Item1.Key, typeof(T)), y => y.Item2);
         }
         
         protected async Task<IDictionary<T, D>> GetEntitiesByReferenceIdAsDictionaryAsync<T, D>(IEnumerable<T> referenceIds,
-            string referenceName, string serviceName, string serviceEndpoint) where T : IConvertible
+            string serviceName, string serviceEndpoint) where T : IConvertible
         {
-            IDictionary<string, string> queryParameters = new Dictionary<string, string>();
-            foreach (var referenceId in referenceIds)
-            {
-                queryParameters.Add(referenceName, referenceId.ToString());
-            }
-
             var result =
-                await GetEntitiesAsync<DTO.SuccessResponse<Dictionary<string, D>>>(queryParameters, serviceName,
-                    serviceEndpoint);
+                await InvokeMethodAsync<DTO.SuccessResponse<Dictionary<string, D>>, IEnumerable<T>>(serviceName,
+                    serviceEndpoint, HTTPVerb.Post, body: referenceIds);
             return result?.Content.ToDictionary(key => (T) Convert.ChangeType(key.Key, typeof(T)),
                 value => value.Value);
         }

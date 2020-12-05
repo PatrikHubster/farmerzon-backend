@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
@@ -13,7 +15,8 @@ namespace FarmerzonBackendManager.Implementation
         private const string CityResource = "city";
         private const string CityByAddressEndpoint = "get-by-address-id";
 
-        public CityManager(ITokenManager tokenManager, DaprClient daprClient) : base(tokenManager, daprClient)
+        public CityManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<CityManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
@@ -36,16 +39,15 @@ namespace FarmerzonBackendManager.Implementation
                 queryParameters.Add(nameof(name), name);
             }
 
-            var result =
-                await GetEntitiesAsync<DTO.SuccessResponse<IList<DTO.CityOutput>>>(queryParameters, AddressServiceName, 
-                    CityResource);
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.CityOutput>>>(AddressServiceName,
+                CityResource, HTTPVerb.Get, queryParameters: queryParameters);
             return result?.Content;
         }
 
         public async Task<IDictionary<long, DTO.CityOutput>> GetCitiesByAddressIdAsync(IEnumerable<long> addressIds)
         {
-            return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.CityOutput>(addressIds,
-                nameof(addressIds), AddressServiceName, $"{CityResource}/{CityByAddressEndpoint}");
+            return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.CityOutput>(addressIds, AddressServiceName,
+                $"{CityResource}/{CityByAddressEndpoint}");
         }
     }
 }

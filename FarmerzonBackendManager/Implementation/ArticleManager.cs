@@ -4,7 +4,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
@@ -17,7 +19,8 @@ namespace FarmerzonBackendManager.Implementation
         private const string ArticlesByNormalizedUserNameEndpoint = "get-by-normalized-user-name";
         private const string ArticlesByUnitEndpoint = "get-by-unit-id";
         
-        public ArticleManager(ITokenManager tokenManager, DaprClient daprClient) : base(tokenManager, daprClient)
+        public ArticleManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<ArticleManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
@@ -75,9 +78,8 @@ namespace FarmerzonBackendManager.Implementation
                     expirationDate.Value.ToString(CultureInfo.CurrentCulture));
             }
 
-            var result =
-                await GetEntitiesAsync<DTO.SuccessResponse<IList<DTO.ArticleOutput>>>(queryParameters,
-                    ArticlesServiceName, ArticlesResource);
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.ArticleOutput>>>(ArticlesServiceName,
+                ArticlesResource, HTTPVerb.Get, queryParameters: queryParameters);
             return result?.Content;
         }
 
@@ -85,14 +87,13 @@ namespace FarmerzonBackendManager.Implementation
             IEnumerable<string> normalizedUserNames)
         {
             return await GetEntitiesByReferenceIdAsLookupsAsync<string, DTO.ArticleOutput>(normalizedUserNames,
-                nameof(normalizedUserNames), ArticlesServiceName,
-                $"{ArticlesResource}/{ArticlesByNormalizedUserNameEndpoint}");
+                ArticlesServiceName, $"{ArticlesResource}/{ArticlesByNormalizedUserNameEndpoint}");
         }
 
         public async Task<ILookup<long, DTO.ArticleOutput>> GetArticlesByUnitIdAsync(IEnumerable<long> unitIds)
         {
-            return await GetEntitiesByReferenceIdAsLookupsAsync<long, DTO.ArticleOutput>(unitIds,
-                nameof(unitIds), ArticlesServiceName, $"{ArticlesResource}/{ArticlesByUnitEndpoint}");
+            return await GetEntitiesByReferenceIdAsLookupsAsync<long, DTO.ArticleOutput>(unitIds, ArticlesServiceName,
+                $"{ArticlesResource}/{ArticlesByUnitEndpoint}");
         }
     }
 }

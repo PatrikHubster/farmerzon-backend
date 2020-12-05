@@ -1,7 +1,10 @@
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
@@ -16,7 +19,8 @@ namespace FarmerzonBackendManager.Implementation
         private const string PersonByArticleEndpoint = "get-by-article-id";
         private const string PersonByAddressEndpoint = "get-by-address-id";
         
-        public PersonManager(ITokenManager tokenManager, DaprClient daprClient) : base(tokenManager, daprClient)
+        public PersonManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<PersonManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
@@ -34,22 +38,21 @@ namespace FarmerzonBackendManager.Implementation
                 queryParameters.Add(nameof(normalizedUserName), normalizedUserName);
             }
 
-            var result =
-                await GetEntitiesAsync<DTO.SuccessResponse<IList<DTO.PersonOutput>>>(queryParameters, PersonServiceName,
-                    PersonResource);
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.PersonOutput>>>(PersonServiceName,
+                PersonResource, HTTPVerb.Get, queryParameters: queryParameters);
             return result?.Content;
         }
 
         public async Task<IDictionary<long, DTO.PersonOutput>> GetPeopleByArticleIdAsync(IEnumerable<long> articleIds)
         {
             return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.PersonOutput>(articleIds,
-                nameof(articleIds), ArticlesServiceName, $"{PersonResource}/{PersonByArticleEndpoint}");
+                ArticlesServiceName, $"{PersonResource}/{PersonByArticleEndpoint}");
         }
 
         public async Task<IDictionary<long, DTO.PersonOutput>> GetPeopleByAddressIdAsync(IEnumerable<long> addressIds)
         {
             return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.PersonOutput>(addressIds,
-                nameof(addressIds), AddressServiceName, $"{PersonResource}/{PersonByAddressEndpoint}");
+                AddressServiceName, $"{PersonResource}/{PersonByAddressEndpoint}");
         }
     }
 }

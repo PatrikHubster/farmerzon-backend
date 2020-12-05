@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
@@ -13,7 +15,8 @@ namespace FarmerzonBackendManager.Implementation
         private const string CountryResource = "country";
         private const string CountryByAddressEndpoint = "get-by-address-id";
         
-        public CountryManager(ITokenManager tokenManager, DaprClient daprClient) : base(tokenManager, daprClient)
+        public CountryManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<CountryManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
@@ -36,9 +39,8 @@ namespace FarmerzonBackendManager.Implementation
                 queryParameters.Add(nameof(code), code);
             }
 
-            var result =
-                await GetEntitiesAsync<DTO.SuccessResponse<IList<DTO.CountryOutput>>>(queryParameters,
-                    AddressServiceName, CountryResource);
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.CountryOutput>>>(AddressServiceName,
+                CountryResource, HTTPVerb.Get, queryParameters: queryParameters);
             return result?.Content;
         }
 
@@ -46,7 +48,7 @@ namespace FarmerzonBackendManager.Implementation
             IEnumerable<long> addressIds)
         {
             return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.CountryOutput>(addressIds,
-                nameof(addressIds), AddressServiceName, $"{CountryResource}/{CountryByAddressEndpoint}");
+                AddressServiceName, $"{CountryResource}/{CountryByAddressEndpoint}");
         }
     }
 }

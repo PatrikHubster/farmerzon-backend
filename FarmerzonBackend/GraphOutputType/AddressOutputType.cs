@@ -16,12 +16,13 @@ namespace FarmerzonBackend.GraphOutputType
         private IPersonManager PersonManager { get; set; }
 
         private void InitDependencies(IDataLoaderContextAccessor accessor, ICityManager cityManager, 
-            ICountryManager countryManager, IStateManager stateManager)
+            ICountryManager countryManager, IStateManager stateManager, IPersonManager personManager)
         {
             Accessor = accessor;
             CityManager = cityManager;
             CountryManager = countryManager;
             StateManager = stateManager;
+            PersonManager = personManager;
         }
 
         private void InitType()
@@ -48,9 +49,9 @@ namespace FarmerzonBackend.GraphOutputType
         }
 
         public AddressOutputType(IDataLoaderContextAccessor accessor, ICityManager cityManager, 
-            ICountryManager countryManager, IStateManager stateManager)
+            ICountryManager countryManager, IStateManager stateManager, IPersonManager personManager)
         {
-            InitDependencies(accessor, cityManager, countryManager, stateManager);
+            InitDependencies(accessor, cityManager, countryManager, stateManager, personManager);
             InitType();
         }
         

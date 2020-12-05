@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
@@ -12,8 +14,9 @@ namespace FarmerzonBackendManager.Implementation
         private const string AddressServiceName = "farmerzon-address";
         private const string StateResource = "state";
         private const string StateByAddressEndpoint = "get-by-address-id";
-        
-        public StateManager(ITokenManager tokenManager, DaprClient daprClient) : base(tokenManager, daprClient)
+
+        public StateManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<StateManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
@@ -31,16 +34,15 @@ namespace FarmerzonBackendManager.Implementation
                 queryParameters.Add(nameof(name), name);
             }
 
-            var result =
-                await GetEntitiesAsync<DTO.SuccessResponse<IList<DTO.StateOutput>>>(queryParameters, AddressServiceName,
-                    StateResource);
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.StateOutput>>>(AddressServiceName,
+                StateResource, HTTPVerb.Get, queryParameters: queryParameters);
             return result?.Content;
         }
 
         public async Task<IDictionary<long, DTO.StateOutput>> GetStatesByAddressIdAsync(IEnumerable<long> addressIds)
         {
             return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.StateOutput>(addressIds,
-                nameof(addressIds), AddressServiceName, $"{StateResource}/{StateByAddressEndpoint}");
+                AddressServiceName, $"{StateResource}/{StateByAddressEndpoint}");
         }
     }
 }
