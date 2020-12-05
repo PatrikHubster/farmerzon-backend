@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FarmerzonBackend.Controllers
 {
     [Authorize]
-    [Route("graph")]
+    [Route("graphql")]
     [ApiController]
     public class GraphController : ControllerBase
     {

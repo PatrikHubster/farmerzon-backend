@@ -8,7 +8,7 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackend.GraphOutputType
 {
-    public class PersonOutputType : ObjectGraphType<DTO.Person>
+    public class PersonOutputType : ObjectGraphType<DTO.PersonOutput>
     {
         private IDataLoaderContextAccessor Accessor { get; set; }
         private IAddressManager AddressManager { get; set; }
@@ -25,16 +25,16 @@ namespace FarmerzonBackend.GraphOutputType
         private void InitType()
         {
             Name = "Person";
-            Field<IdGraphType, long>().Name("personId");
 
-            Field<AddressOutputType, DTO.Address>()
-                .Name("address")
-                .ResolveAsync(LoadAddress);
-            Field<ListGraphType<ArticleOutputType>, IEnumerable<DTO.Article>>()
-                .Name("articles")
-                .ResolveAsync(LoadArticles);
-            
             Field<StringGraphType, string>().Name("normalizedUserName");
+            
+            Field<ListGraphType<AddressOutputType>, IEnumerable<DTO.AddressOutput>>()
+                .Name("addresses")
+                .ResolveAsync(LoadAddressesAsync);
+            Field<ListGraphType<ArticleOutputType>, IEnumerable<DTO.ArticleOutput>>()
+                .Name("articles")
+                .ResolveAsync(LoadArticlesAsync);
+            
             Field<StringGraphType, string>().Name("userName");
         }
 
@@ -45,18 +45,17 @@ namespace FarmerzonBackend.GraphOutputType
             InitType();
         }
         
-        private Task<DTO.Address> LoadAddress(ResolveFieldContext<DTO.Person> context)
+        private Task<IEnumerable<DTO.AddressOutput>> LoadAddressesAsync(ResolveFieldContext<DTO.PersonOutput> context)
         {
-            var loader = Accessor.Context.GetOrAddBatchLoader<string, DTO.Address>("GetAddressByNormalizedUserName",
-                AddressManager.GetAddressesByNormalizedUserName);
+            var loader = Accessor.Context.GetOrAddCollectionBatchLoader<string, DTO.AddressOutput>(
+                "GetAddressByNormalizedUserNameAsync", AddressManager.GetAddressesByNormalizedUserNameAsync);
             return loader.LoadAsync(context.Source.NormalizedUserName);
         }
         
-        private Task<IEnumerable<DTO.Article>> LoadArticles(ResolveFieldContext<DTO.Person> context)
+        private Task<IEnumerable<DTO.ArticleOutput>> LoadArticlesAsync(ResolveFieldContext<DTO.PersonOutput> context)
         {
-            var loader = 
-                Accessor.Context.GetOrAddCollectionBatchLoader<string, DTO.Article>("GetArticlesByNormalizedUserName",
-                    ArticleManager.GetArticlesByPersonNormalizedUserNameAsync);
+            var loader = Accessor.Context.GetOrAddCollectionBatchLoader<string, DTO.ArticleOutput>(
+                "GetArticlesByNormalizedUserNameAsync", ArticleManager.GetArticlesByNormalizedUserNameAsync);
             return loader.LoadAsync(context.Source.NormalizedUserName);
         }
     }

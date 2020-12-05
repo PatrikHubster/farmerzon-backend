@@ -1,61 +1,48 @@
-using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web;
+using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackendManager.Implementation
 {
-    public class UnitManager : AbstractManager<DTO.Unit>, IUnitManager
+    public class UnitManager : AbstractManager, IUnitManager
     {
-        public UnitManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
-            base(clientFactory, tokenManager)
+        private const string ArticlesServiceName = "farmerzon-articles";
+        private const string UnitResource = "unit";
+        private const string UnitByArticleEndpoint = "get-by-article-id";
+        
+        public UnitManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<UnitManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
         
-        public async Task<IList<DTO.Unit>> GetEntitiesAsync(long? unitId, string name)
+        public async Task<IList<DTO.UnitOutput>> GetEntitiesAsync(long? unitId, string name)
         {
-            var query = HttpUtility.ParseQueryString(string.Empty);
+            Dictionary<string, string> queryParameter = new Dictionary<string, string>();
             if (unitId != null)
             {
-                query.Add(nameof(unitId), unitId.Value.ToString());   
+                queryParameter.Add(nameof(unitId), unitId.Value.ToString());   
             }
 
             if (!string.IsNullOrEmpty(name))
             {
-                query.Add(nameof(name), name);
-            }
-            
-            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
-            httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
-            var builder = new UriBuilder($"{httpClient.BaseAddress}unit")
-            {
-                Query = query.ToString() ?? string.Empty
-            };
-            var httpResponse = await httpClient.GetAsync(builder.ToString());
-            
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return null;
+                queryParameter.Add(nameof(name), name);
             }
 
-            var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var units = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.Unit>>>(httpResponseContent);
-            return units.Content;
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.UnitOutput>>>(ArticlesServiceName,
+                UnitResource, HTTPVerb.Get, queryParameters: queryParameter);
+            return result?.Content;
         }
 
-        public async Task<IDictionary<long, DTO.Unit>> GetUnitsByArticleIdAsync(IEnumerable<long> articleIds)
+        public async Task<IDictionary<long, DTO.UnitOutput>> GetUnitsByArticleIdAsync(IEnumerable<long> articleIds)
         {
-            return await GetEntitiesByReferenceIdAsDictAsync(articleIds, nameof(articleIds), FarmerzonArticles,
-                "unit/get-by-article-id"); 
+            return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.UnitOutput>(articleIds,
+                ArticlesServiceName, $"{UnitResource}/{UnitByArticleEndpoint}");
         }
     }
 }

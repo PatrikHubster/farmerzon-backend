@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using FarmerzonBackend.GraphControllerType;
 using FarmerzonBackend.GraphOutputType;
@@ -26,36 +25,13 @@ namespace FarmerzonBackend
             Configuration = configuration;
         }
 
-        readonly string allowOrigins = "allowOrigins";
-        
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
         
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors(c => 
-            {
-                c.AddPolicy(allowOrigins,
-                    options =>
-                    {
-                        options.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
-                    });
-            });
-            
-            // Adding the micrservices like described on:
-            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-3.1
-            services.AddHttpClient("FarmerzonAddress", c =>
-            {
-                c.BaseAddress = new Uri($"http://{Configuration["BaseUrls:FarmerzonAddress:Host"]}:" +
-                                        $"{Configuration["BaseUrls:FarmerzonAddress:Port"]}");
-            });
-            
-            services.AddHttpClient("FarmerzonArticles", c =>
-            {
-                c.BaseAddress = new Uri($"http://{Configuration["BaseUrls:FarmerzonArticles:Host"]}:" +
-                    $"{Configuration["BaseUrls:FarmerzonArticles:Port"]}");
-            });
+            services.AddControllers().AddDapr();
 
             // serialization for GraphQL error responses was not able. The following solution was found on stackoverflow
             // under the following url: https://stackoverflow.com/questions/59199593/net-core-3-0-possible-object-cycle
@@ -130,14 +106,18 @@ namespace FarmerzonBackend
             }
 
             app.UseRouting();
-            app.UseCors(allowOrigins);
+            app.UseCloudEvents();
 
             // It is important to use app.UseAuthentication(); before app.UseAuthorization();
             // Otherwise authentication with json web tokens doesn't work.
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapSubscribeHandler();
+                endpoints.MapControllers();
+            });
         }
     }
 }
