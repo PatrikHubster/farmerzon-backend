@@ -41,6 +41,9 @@ namespace FarmerzonBackend
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
                 );
             
+            // for Kubernetes health checks
+            services.AddHealthChecks();
+            
             services.AddControllers();
             
             services.AddAuthentication(options =>
@@ -116,6 +119,9 @@ namespace FarmerzonBackend
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapSubscribeHandler();
+                endpoints.MapHealthChecks("/health/startup");
+                endpoints.MapHealthChecks("/healthz");
+                endpoints.MapHealthChecks("/ready");
                 endpoints.MapControllers();
             });
         }
