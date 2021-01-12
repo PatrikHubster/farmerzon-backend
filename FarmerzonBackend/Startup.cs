@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using FarmerzonBackend.GraphControllerType;
 using FarmerzonBackend.GraphOutputType;
@@ -21,40 +20,24 @@ namespace FarmerzonBackend
 {
     public class Startup
     {
+        private const string CorsPolicy = "allowedOrigins";
+        private IConfiguration Configuration { get; }
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        readonly string allowOrigins = "allowOrigins";
-        
-        public IConfiguration Configuration { get; }
-        
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors(c => 
             {
-                c.AddPolicy(allowOrigins,
-                    options =>
-                    {
-                        options.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
-                    });
-            });
-            
-            // Adding the micrservices like described on:
-            // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/http-requests?view=aspnetcore-3.1
-            services.AddHttpClient("FarmerzonAddress", c =>
-            {
-                c.BaseAddress = new Uri($"http://{Configuration["BaseUrls:FarmerzonAddress:Host"]}:" +
-                                        $"{Configuration["BaseUrls:FarmerzonAddress:Port"]}");
-            });
-            
-            services.AddHttpClient("FarmerzonArticles", c =>
-            {
-                c.BaseAddress = new Uri($"http://{Configuration["BaseUrls:FarmerzonArticles:Host"]}:" +
-                    $"{Configuration["BaseUrls:FarmerzonArticles:Port"]}");
+                c.AddPolicy(CorsPolicy, options =>
+                {
+                    options.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>());
+                });
             });
 
             // serialization for GraphQL error responses was not able. The following solution was found on stackoverflow
@@ -130,7 +113,7 @@ namespace FarmerzonBackend
             }
 
             app.UseRouting();
-            app.UseCors(allowOrigins);
+            app.UseCors(CorsPolicy);
 
             // It is important to use app.UseAuthentication(); before app.UseAuthorization();
             // Otherwise authentication with json web tokens doesn't work.
