@@ -1,66 +1,58 @@
-using System;
 using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
-using System.Web;
+using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackendManager.Implementation
 {
-    public class PersonManager : AbstractManager<DTO.Person>, IPersonManager
+    public class PersonManager : AbstractManager, IPersonManager
     {
-        public PersonManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
-            base(clientFactory, tokenManager)
+        private const string PersonServiceName = "farmerzon-authentication";
+        private const string AddressServiceName = "farmerzon-address";
+        private const string ArticlesServiceName = "farmerzon-articles";
+        private const string PersonResource = "person";
+        private const string PersonByArticleEndpoint = "get-by-article-id";
+        private const string PersonByAddressEndpoint = "get-by-address-id";
+        
+        public PersonManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<PersonManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
 
-        public async Task<IList<DTO.Person>> GetEntitiesAsync(long? personId, string userName, string normalizedUserName)
+        public async Task<IList<DTO.PersonOutput>> GetEntitiesAsync(string userName, string normalizedUserName)
         {
-            var query = HttpUtility.ParseQueryString(string.Empty);
-            if (personId != null)
+            IDictionary<string, string> queryParameters = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(normalizedUserName))
             {
-                query.Add(nameof(personId), personId.Value.ToString());
+                queryParameters.Add(nameof(userName), userName);
             }
 
             if (!string.IsNullOrEmpty(normalizedUserName))
             {
-                query.Add(nameof(userName), userName);
+                queryParameters.Add(nameof(normalizedUserName), normalizedUserName);
             }
 
-            if (!string.IsNullOrEmpty(normalizedUserName))
-            {
-                query.Add(nameof(normalizedUserName), normalizedUserName);
-            }
-
-            var httpClient = ClientFactory.CreateClient(FarmerzonArticles);
-            httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
-            var builder = new UriBuilder($"{httpClient.BaseAddress}person")
-            {
-                Query = query.ToString() ?? string.Empty
-            };
-            var httpResponse = await httpClient.GetAsync(builder.ToString());
-
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return null;
-            }
-
-            var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var people = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.Person>>>(httpResponseContent);
-            return people.Content;
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.PersonOutput>>>(PersonServiceName,
+                PersonResource, HTTPVerb.Get, queryParameters: queryParameters);
+            return result?.Content;
         }
 
-        public async Task<IDictionary<long, DTO.Person>> GetPeopleByArticleIdAsync(IEnumerable<long> articleIds)
+        public async Task<IDictionary<long, DTO.PersonOutput>> GetPeopleByArticleIdAsync(IEnumerable<long> articleIds)
         {
-            return await GetEntitiesByReferenceIdAsDictAsync(articleIds, nameof(articleIds), FarmerzonArticles,
-                "person/get-by-article-id");
+            return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.PersonOutput>(articleIds,
+                ArticlesServiceName, $"{PersonResource}/{PersonByArticleEndpoint}");
+        }
+
+        public async Task<IDictionary<long, DTO.PersonOutput>> GetPeopleByAddressIdAsync(IEnumerable<long> addressIds)
+        {
+            return await GetEntitiesByReferenceIdAsDictionaryAsync<long, DTO.PersonOutput>(addressIds,
+                AddressServiceName, $"{PersonResource}/{PersonByAddressEndpoint}");
         }
     }
 }

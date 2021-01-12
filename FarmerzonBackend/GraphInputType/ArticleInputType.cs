@@ -5,12 +5,12 @@ using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackend.GraphInputType
 {
-    public class ArticleInputType : InputObjectGraphType<DTO.Article>
+    public class ArticleInputType : InputObjectGraphType<DTO.ArticleInput>
     {
         private void InitType()
         {
             Name = "Article";
-            Field<NonNullGraphType<UnitInputType>, DTO.Unit>().Name("unit");
+            Field<NonNullGraphType<UnitInputType>, DTO.UnitInput>().Name("unit");
 
             Field<NonNullGraphType<StringGraphType>, string>().Name("name");
             Field<NonNullGraphType<StringGraphType>, string>().Name("description");

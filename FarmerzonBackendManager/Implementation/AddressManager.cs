@@ -1,86 +1,76 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Web;
+using Dapr.Client;
+using Dapr.Client.Http;
 using FarmerzonBackendManager.Interface;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 using DTO = FarmerzonBackendDataTransferModel;
 
 namespace FarmerzonBackendManager.Implementation
 {
-    public class AddressManager : AbstractManager<DTO.Address>, IAddressManager
+    public class AddressManager : AbstractManager, IAddressManager
     {
-        public AddressManager(IHttpClientFactory clientFactory, ITokenManager tokenManager) : 
-            base(clientFactory, tokenManager)
+        private const string AddressServiceName = "farmerzon-address";
+        private const string AddressResource = "address";
+        private const string AddressByCityEndpoint = "get-by-city-id";
+        private const string AddressByCountryEndpoint = "get-by-country-id";
+        private const string AddressByStateEndpoint = "get-by-state-id";
+        private const string AddressByNormalizedUserNameEndpoint = "get-by-normalized-user-name";
+        
+        public AddressManager(ITokenManager tokenManager, DaprClient daprClient, 
+            ILogger<AddressManager> logger) : base(tokenManager, daprClient, logger)
         {
             // nothing to do here
         }
 
-        public async Task<IList<DTO.Address>> GetEntitiesAsync(long? addressId, string doorNumber, string street)
+        public async Task<IList<DTO.AddressOutput>> GetEntitiesAsync(long? addressId, string doorNumber, string street)
         {
-            var query = HttpUtility.ParseQueryString(string.Empty);
+            IDictionary<string, string> queryParameters = new Dictionary<string, string>();
             if (addressId != null)
             {
-                query.Add(nameof(addressId), addressId.Value.ToString());
+                queryParameters.Add(nameof(addressId), addressId.Value.ToString());
             }
 
             if (!string.IsNullOrEmpty(doorNumber))
             {
-                query.Add(nameof(doorNumber), doorNumber);
+                queryParameters.Add(nameof(doorNumber), doorNumber);
             }
 
             if (!string.IsNullOrEmpty(street))
             {
-                query.Add(nameof(street), street);
+                queryParameters.Add(nameof(street), street);
             }
 
-            var httpClient = ClientFactory.CreateClient(FarmerzonAddress);
-            httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", TokenManager.Token);
-            var builder = new UriBuilder($"{httpClient.BaseAddress}address")
-            {
-                Query = query.ToString() ?? string.Empty
-            };
-            var httpResponse = await httpClient.GetAsync(builder.ToString());
-
-            if (httpResponse.StatusCode != HttpStatusCode.OK)
-            {
-                return null;
-            }
-
-            var httpResponseContent = await httpResponse.Content.ReadAsStringAsync();
-            var addresses = JsonConvert.DeserializeObject<DTO.SuccessResponse<IList<DTO.Address>>>(httpResponseContent);
-            return addresses.Content;
+            var result = await InvokeMethodAsync<DTO.SuccessResponse<IList<DTO.AddressOutput>>>(AddressServiceName,
+                AddressResource, HTTPVerb.Get, queryParameters: queryParameters);
+            return result?.Content;
         }
 
-        public async Task<ILookup<long, DTO.Address>> GetAddressesByCityIdAsync(IEnumerable<long> cityIds)
+        public async Task<ILookup<long, DTO.AddressOutput>> GetAddressesByCityIdAsync(IEnumerable<long> cityIds)
         {
-            return await GetEntitiesByReferenceIdAsLookupAsync(cityIds, nameof(cityIds), FarmerzonAddress,
-                "address/get-by-city-id");
+            return await GetEntitiesByReferenceIdAsLookupsAsync<long, DTO.AddressOutput>(cityIds, AddressServiceName,
+                $"{AddressResource}/{AddressByCityEndpoint}");
         }
 
-        public async Task<ILookup<long, DTO.Address>> GetAddressesByCountryIdAsync(IEnumerable<long> countryIds)
+        public async Task<ILookup<long, DTO.AddressOutput>> GetAddressesByCountryIdAsync(IEnumerable<long> countryIds)
         {
-            return await GetEntitiesByReferenceIdAsLookupAsync(countryIds, nameof(countryIds), FarmerzonAddress,
-                "address/get-by-country-id");
+            return await GetEntitiesByReferenceIdAsLookupsAsync<long, DTO.AddressOutput>(countryIds, AddressServiceName,
+                $"{AddressResource}/{AddressByCountryEndpoint}");
         }
 
-        public async Task<ILookup<long, DTO.Address>> GetAddressesByStateIdAsync(IEnumerable<long> stateIds)
+        public async Task<ILookup<long, DTO.AddressOutput>> GetAddressesByStateIdAsync(IEnumerable<long> stateIds)
         {
-            return await GetEntitiesByReferenceIdAsLookupAsync(stateIds, nameof(stateIds), FarmerzonAddress,
-                "address/get-by-state-id");
+            return await GetEntitiesByReferenceIdAsLookupsAsync<long, DTO.AddressOutput>(stateIds, AddressServiceName,
+                $"{AddressResource}/{AddressByStateEndpoint}");
         }
 
-        public async Task<IDictionary<string, DTO.Address>> GetAddressesByNormalizedUserName(IEnumerable<string> normalizedUserNames)
+        public async Task<ILookup<string, DTO.AddressOutput>> GetAddressesByNormalizedUserNameAsync(
+            IEnumerable<string> normalizedUserNames)
         {
-            return await GetEntitiesByReferenceIdAsDictAsync(normalizedUserNames, nameof(normalizedUserNames),
-                FarmerzonAddress,
-                "address/get-by-normalized-user-name");
+            return await GetEntitiesByReferenceIdAsLookupsAsync<string, DTO.AddressOutput>(normalizedUserNames,
+                AddressServiceName, $"{AddressResource}/{AddressByNormalizedUserNameEndpoint}");
         }
     }
 }

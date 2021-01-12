@@ -27,7 +27,7 @@ namespace FarmerzonBackend
         {
             Configuration = configuration;
         }
-
+        
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -39,6 +39,8 @@ namespace FarmerzonBackend
                     options.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>());
                 });
             });
+            
+            services.AddControllers().AddDapr();
 
             // serialization for GraphQL error responses was not able. The following solution was found on stackoverflow
             // under the following url: https://stackoverflow.com/questions/59199593/net-core-3-0-possible-object-cycle
@@ -47,6 +49,9 @@ namespace FarmerzonBackend
                 .AddNewtonsoftJson(options =>
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
                 );
+            
+            // for Kubernetes health checks
+            services.AddHealthChecks();
             
             services.AddControllers();
             
@@ -114,13 +119,21 @@ namespace FarmerzonBackend
 
             app.UseRouting();
             app.UseCors(CorsPolicy);
+            app.UseCloudEvents();
 
             // It is important to use app.UseAuthentication(); before app.UseAuthorization();
             // Otherwise authentication with json web tokens doesn't work.
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapSubscribeHandler();
+                endpoints.MapHealthChecks("/health/startup");
+                endpoints.MapHealthChecks("/healthz");
+                endpoints.MapHealthChecks("/ready");
+                endpoints.MapControllers();
+            });
         }
     }
 }

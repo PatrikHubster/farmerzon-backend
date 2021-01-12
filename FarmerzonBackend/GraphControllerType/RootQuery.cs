@@ -35,10 +35,10 @@ namespace FarmerzonBackend.GraphControllerType
         private void InitQuery()
         {
             Name = "RootQuery";
-            Field<ListGraphType<AddressOutputType>>("addresses",
+            Field<ListGraphType<AddressOutputType>>(name: "addresses",
                 arguments: new QueryArguments
                 {
-                    new QueryArgument<IdGraphType> {Name = "addressId"},
+                    new QueryArgument<IdGraphType> {Name = "id"},
                     new QueryArgument<StringGraphType> {Name = "doorNumber"},
                     new QueryArgument<StringGraphType> {Name = "street"}
                 }, resolve: LoadAddresses);
@@ -46,7 +46,7 @@ namespace FarmerzonBackend.GraphControllerType
             Field<ListGraphType<ArticleOutputType>>(name: "articles",
                 arguments: new QueryArguments
                 {
-                    new QueryArgument<IdGraphType> {Name = "articleId"},
+                    new QueryArgument<IdGraphType> {Name = "id"},
                     new QueryArgument<StringGraphType> {Name = "name"},
                     new QueryArgument<StringGraphType> {Name = "description"},
                     new QueryArgument<FloatGraphType> {Name = "price"},
@@ -60,15 +60,15 @@ namespace FarmerzonBackend.GraphControllerType
             Field<ListGraphType<CityOutputType>>(name: "cities",
                 arguments: new QueryArguments
                 {
-                    new QueryArgument<IdGraphType> {Name = "cityId"},
+                    new QueryArgument<IdGraphType> {Name = "id"},
                     new QueryArgument<StringGraphType> {Name = "zipCode"},
                     new QueryArgument<StringGraphType> {Name = "name"}
                 }, resolve: LoadCities);
 
-            Field<ListGraphType<CountryOutputType>>("countries",
+            Field<ListGraphType<CountryOutputType>>(name: "countries",
                 arguments: new QueryArguments
                 {
-                    new QueryArgument<IdGraphType> {Name = "countryId"},
+                    new QueryArgument<IdGraphType> {Name = "id"},
                     new QueryArgument<StringGraphType> {Name = "name"},
                     new QueryArgument<StringGraphType> {Name = "code"}
                 }, resolve: LoadCountries);
@@ -76,7 +76,6 @@ namespace FarmerzonBackend.GraphControllerType
             Field<ListGraphType<PersonOutputType>>(name: "people",
                 arguments: new QueryArguments
                 {
-                    new QueryArgument<IdGraphType> {Name = "personId"},
                     new QueryArgument<StringGraphType> {Name = "userName"},
                     new QueryArgument<StringGraphType> {Name = "normalizedUserName"}
                 }, resolve: LoadPeople);
@@ -84,14 +83,14 @@ namespace FarmerzonBackend.GraphControllerType
             Field<ListGraphType<StateOutputType>>(name: "states",
                 arguments: new QueryArguments
                 {
-                    new QueryArgument<IdGraphType> {Name = "stateId"},
+                    new QueryArgument<IdGraphType> {Name = "id"},
                     new QueryArgument<StringGraphType> {Name = "name"}
                 }, resolve: LoadStates);
 
         Field<ListGraphType<UnitOutputType>>(name: "units",
                 arguments: new QueryArguments
                 {
-                    new QueryArgument<IdGraphType> {Name = "unitId"},
+                    new QueryArgument<IdGraphType> {Name = "id"},
                     new QueryArgument<StringGraphType> {Name = "name"}
                 }, resolve: LoadUnits);
         }
@@ -105,17 +104,17 @@ namespace FarmerzonBackend.GraphControllerType
             InitQuery();
         }
         
-        private async Task<IList<DTO.Address>> LoadAddresses(ResolveFieldContext<object> context)
+        private async Task<IList<DTO.AddressOutput>> LoadAddresses(ResolveFieldContext<object> context)
         {
-            var addressId = context.GetArgument<long?>("addressId");
+            var id = context.GetArgument<long?>("id");
             var doorNumber = context.GetArgument<string>("doorNumber");
             var street = context.GetArgument<string>("street");
-            return await AddressManager.GetEntitiesAsync(addressId, doorNumber, street);
+            return await AddressManager.GetEntitiesAsync(id, doorNumber, street);
         }
 
-        private async Task<IList<DTO.Article>> LoadArticles(ResolveFieldContext<object> context)
+        private async Task<IList<DTO.ArticleOutput>> LoadArticles(ResolveFieldContext<object> context)
         {
-            var articleId = context.GetArgument<long?>("articleId");
+            var id = context.GetArgument<long?>("id");
             var name = context.GetArgument<string>("name");
             var description = context.GetArgument<string>("description");
             var price = context.GetArgument<double?>("price");
@@ -124,46 +123,45 @@ namespace FarmerzonBackend.GraphControllerType
             var createdAt = context.GetArgument<DateTime?>("createdAt");
             var updatedAt = context.GetArgument<DateTime?>("updatedAt");
             var expirationDate = context.GetArgument<DateTime?>("expirationDate");
-            return await ArticleManager.GetEntitiesAsync(articleId, name, description, price, amount, size, 
+            return await ArticleManager.GetEntitiesAsync(id, name, description, price, amount, size, 
                 createdAt, updatedAt, expirationDate);
         }
         
-        private async Task<IList<DTO.City>> LoadCities(ResolveFieldContext<object> context)
+        private async Task<IList<DTO.CityOutput>> LoadCities(ResolveFieldContext<object> context)
         {
-            var cityId = context.GetArgument<long?>("cityId");
+            var id = context.GetArgument<long?>("id");
             var zipCode = context.GetArgument<string>("zipCode");
             var name = context.GetArgument<string>("name");
-            return await CityManager.GetEntitiesAsync(cityId, zipCode, name);
+            return await CityManager.GetEntitiesAsync(id, zipCode, name);
         }
         
-        private async Task<IList<DTO.Country>> LoadCountries(ResolveFieldContext<object> context)
+        private async Task<IList<DTO.CountryOutput>> LoadCountries(ResolveFieldContext<object> context)
         {
-            var countryId = context.GetArgument<long?>("countryId");
+            var id = context.GetArgument<long?>("id");
             var name = context.GetArgument<string>("name");
             var code = context.GetArgument<string>("code");
-            return await CountryManager.GetEntitiesAsync(countryId, name, code);
+            return await CountryManager.GetEntitiesAsync(id, name, code);
         }
         
-        private async Task<IList<DTO.Person>> LoadPeople(ResolveFieldContext<object> context)
+        private async Task<IList<DTO.PersonOutput>> LoadPeople(ResolveFieldContext<object> context)
         {
-            var personId = context.GetArgument<long?>("personId");
             var userName = context.GetArgument<string>("userName");
             var normalizedUserName = context.GetArgument<string>("normalizedUserName");
-            return await PersonManager.GetEntitiesAsync(personId, userName, normalizedUserName);
+            return await PersonManager.GetEntitiesAsync(userName, normalizedUserName);
         }
         
-        private async Task<IList<DTO.State>> LoadStates(ResolveFieldContext<object> context)
+        private async Task<IList<DTO.StateOutput>> LoadStates(ResolveFieldContext<object> context)
         {
-            var stateId = context.GetArgument<long?>("stateId");
+            var id = context.GetArgument<long?>("id");
             var name = context.GetArgument<string>("name");
-            return await StateManager.GetEntitiesAsync(stateId, name);
+            return await StateManager.GetEntitiesAsync(id, name);
         }
         
-        private async Task<IList<DTO.Unit>> LoadUnits(ResolveFieldContext<object> context)
+        private async Task<IList<DTO.UnitOutput>> LoadUnits(ResolveFieldContext<object> context)
         {
-            var unitId = context.GetArgument<long?>("unitId");
+            var id = context.GetArgument<long?>("id");
             var name = context.GetArgument<string>("name");
-            return await UnitManager.GetEntitiesAsync(unitId, name);
+            return await UnitManager.GetEntitiesAsync(id, name);
         }
     }
 }
