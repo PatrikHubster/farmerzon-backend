@@ -11,6 +11,7 @@ COPY *.sln ./
 COPY ./FarmerzonBackend/*.csproj FarmerzonBackend/
 COPY ./FarmerzonBackendDataTransferModel/*.csproj FarmerzonBackendDataTransferModel/
 COPY ./FarmerzonBackendManager/*.csproj FarmerzonBackendManager/
+RUN dotnet clean ./FarmerzonBackend.sln --configuration Release && dotnet nuget locals all --clear
 RUN dotnet restore --verbosity detailed
 COPY . .
 WORKDIR /src/FarmerzonBackend
