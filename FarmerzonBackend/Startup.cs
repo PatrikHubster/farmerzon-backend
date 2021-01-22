@@ -36,7 +36,9 @@ namespace FarmerzonBackend
             {
                 c.AddPolicy(CorsPolicy, options =>
                 {
-                    options.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>());
+                    options.WithOrigins(Configuration.GetSection("AllowedOrigins").Get<string[]>())
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                 });
             });
             
