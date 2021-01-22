@@ -11,7 +11,7 @@ COPY *.sln ./
 COPY ./FarmerzonBackend/*.csproj FarmerzonBackend/
 COPY ./FarmerzonBackendDataTransferModel/*.csproj FarmerzonBackendDataTransferModel/
 COPY ./FarmerzonBackendManager/*.csproj FarmerzonBackendManager/
-RUN dotnet restore --verbosity detailed
+RUN dotnet restore --verbosity diag
 COPY . .
 WORKDIR /src/FarmerzonBackend
 RUN dotnet build -c $Configuration -o /app
